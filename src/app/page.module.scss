@@ -1,0 +1,17 @@
+@use "../styles/mixins";
+@use "../styles/tokens";
+
+.page {
+  display: grid;
+  min-height: 100svh;
+  padding: tokens.$space-4;
+  place-items: center;
+
+  @include mixins.tablet {
+    padding: tokens.$space-6;
+  }
+
+  @include mixins.pc {
+    padding: tokens.$space-8;
+  }
+}

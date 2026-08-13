@@ -1,0 +1,6 @@
+.agents/
+.claude/settings.local.json
+.next/
+node_modules/
+out/
+pnpm-lock.yaml

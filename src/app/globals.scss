@@ -1,0 +1,11 @@
+@use "../styles/foundation/reset";
+@use "../styles/foundation/base";
+@use "../styles/tokens";
+
+:root {
+  --color-background: #{tokens.$color-background};
+  --color-text: #{tokens.$color-text};
+  --font-family-sans: #{tokens.$font-family-sans};
+  --font-size-body: #{tokens.$font-size-body};
+  --line-height-body: #{tokens.$line-height-body};
+}

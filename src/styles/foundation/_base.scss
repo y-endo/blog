@@ -1,0 +1,15 @@
+html {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+body {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}

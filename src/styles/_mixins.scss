@@ -1,0 +1,19 @@
+@use "tokens";
+
+@mixin tablet {
+  @media (width >= tokens.$breakpoint-tablet) {
+    @content;
+  }
+}
+
+@mixin pc {
+  @media (width >= tokens.$breakpoint-pc) {
+    @content;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}

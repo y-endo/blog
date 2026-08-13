@@ -1,0 +1,19 @@
+@use "functions";
+
+$color-neutral-0: #fff;
+$color-neutral-950: #171717;
+$color-background: $color-neutral-0;
+$color-text: $color-neutral-950;
+$font-family-sans:
+  system-ui,
+  -apple-system,
+  blinkmacsystemfont,
+  "Segoe UI",
+  sans-serif;
+$font-size-body: functions.rem(16);
+$line-height-body: 1.7;
+$space-4: functions.rem(16);
+$space-6: functions.rem(24);
+$space-8: functions.rem(32);
+$breakpoint-tablet: functions.rem(768);
+$breakpoint-pc: functions.rem(1024);

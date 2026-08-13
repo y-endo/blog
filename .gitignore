@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+
+# Next.js and static export
+.next/
+out/
+
+# Tests and reports
+coverage/
+playwright-report/
+test-results/
+
+# Local environment variables
+.env
+.env.*
+!.env.example
+
+# Deployment tools
+.vercel/
+.aws-sam/
+cdk.out/
+
+# Credentials and certificates
+*.key
+*.pem
+*.p12
+
+# Logs and generated TypeScript files
+*.log
+*.tsbuildinfo
+next-env.d.ts
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Local AI agent configuration
+.agents/

@@ -1,0 +1,11 @@
+@use "sass:math";
+
+$root-font-size: 16;
+
+@function rem($pixel) {
+  @if not math.is-unitless($pixel) {
+    @error "rem()には単位なしのpx相当値を指定してください。";
+  }
+
+  @return math.div($pixel, $root-font-size) * 1rem;
+}
