@@ -1,0 +1,1576 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="design-spec-artifact" content="visual-reference" />
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <title>Blog | 編集デスク型 視覚リファレンス</title>
+    <style>
+      @layer reset, base, layout, components, responsive;
+
+      @layer reset {
+        *,
+        *::before,
+        *::after {
+          box-sizing: border-box;
+        }
+
+        body,
+        h1,
+        h2,
+        h3,
+        p,
+        ul,
+        ol,
+        figure,
+        dialog {
+          margin: 0;
+        }
+
+        ul,
+        ol {
+          padding: 0;
+        }
+
+        button {
+          font: inherit;
+        }
+
+        img,
+        svg {
+          display: block;
+          max-inline-size: 100%;
+        }
+      }
+
+      @layer base {
+        :root {
+          color-scheme: light;
+          --canvas: #ffffff;
+          --paper: #f8f9fb;
+          --paper-muted: #edf1f5;
+          --ink: #17243a;
+          --muted: #647085;
+          --line: #dce2e9;
+          --vermilion: #28577e;
+          --yellow: #e2ebf4;
+          --cyan: #edf1f5;
+          --focus: #005fcc;
+          --font-sans: "Noto Sans JP", sans-serif;
+          --font-serif: "Noto Serif JP", serif;
+        }
+
+        html {
+          background: var(--canvas);
+          scroll-behavior: smooth;
+        }
+
+        body {
+          background: var(--canvas);
+          color: var(--ink);
+          font-family: var(--font-sans);
+          font-size: 1rem;
+          line-height: 1.8;
+          overflow-wrap: anywhere;
+        }
+
+        h1,
+        h2,
+        h3 {
+          font-family: var(--font-serif);
+          font-weight: 600;
+        }
+
+        a {
+          color: inherit;
+          text-decoration-thickness: 0.08em;
+          text-underline-offset: 0.22em;
+        }
+
+        button {
+          color: inherit;
+        }
+
+        :where(a, button):focus-visible {
+          outline: 0.1875rem solid var(--focus);
+          outline-offset: 0.1875rem;
+        }
+
+        .visually-hidden:where(:not(:focus-within, :active)) {
+          position: absolute;
+          inline-size: 0.0625rem;
+          block-size: 0.0625rem;
+          margin: -0.0625rem;
+          padding: 0;
+          overflow: hidden;
+          border: 0;
+          clip-path: inset(50%);
+          white-space: nowrap;
+        }
+      }
+
+      @layer layout {
+        .about-section__inner {
+          inline-size: calc(100% - 3rem);
+          max-inline-size: 80rem;
+          margin-inline: auto;
+        }
+
+        .site-header {
+          inline-size: 100%;
+        }
+
+        .site-header__top {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          align-items: center;
+          min-block-size: 4.75rem;
+          padding-inline: 2rem;
+        }
+
+        .site-header__name {
+          grid-column: 2;
+          font-family: var(--font-serif);
+          font-size: 1.75rem;
+          font-weight: 700;
+          text-decoration: none;
+        }
+
+        .site-header__actions {
+          grid-column: 3;
+          justify-self: end;
+        }
+
+        .site-categories {
+          border-block: 0.0625rem solid var(--line);
+        }
+
+        .site-categories ul {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.25rem 2rem;
+          padding: 0.625rem 1rem;
+          list-style: none;
+        }
+
+        .site-categories a {
+          font-size: 0.8125rem;
+          font-weight: 700;
+          text-decoration: none;
+        }
+
+        main {
+          padding-block-start: 2rem;
+        }
+
+        .content-section {
+          inline-size: 100%;
+          padding-inline: 2rem;
+          padding-block: 4.5rem;
+        }
+
+        .section-heading {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          align-items: center;
+          gap: 1.5rem;
+          margin-block-end: 1.75rem;
+        }
+
+        .section-title {
+          grid-column: 2;
+          text-align: center;
+          font-size: 1.75rem;
+          line-height: 1.5;
+        }
+
+        .section-heading .button-dark {
+          grid-column: 3;
+          justify-self: end;
+        }
+
+        .article-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.25rem;
+        }
+
+        .site-footer {
+          border-block-start: 0.0625rem solid var(--line);
+          background: var(--paper);
+        }
+
+        .site-footer__inner {
+          display: grid;
+          grid-template-columns: 1.5fr repeat(3, 1fr);
+          gap: 2.5rem;
+          inline-size: 100%;
+          padding: 3.5rem 2rem 1.5rem;
+        }
+      }
+
+      @layer components {
+        .button-dark,
+        .icon-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          border: 0.125rem solid var(--ink);
+          border-radius: 0.75rem;
+          padding: 0.625rem 1rem;
+          background: var(--ink);
+          color: var(--canvas);
+          cursor: pointer;
+          font-size: 0.8125rem;
+          font-weight: 700;
+          line-height: 1.4;
+          text-decoration: none;
+        }
+
+        .icon-button {
+          inline-size: 3rem;
+          block-size: 3rem;
+          padding: 0;
+        }
+
+        .site-header .icon-button {
+          border: 0;
+          background: transparent;
+          color: var(--ink);
+        }
+
+        .site-header .icon-button:hover {
+          background: transparent;
+          color: var(--vermilion);
+        }
+
+        .icon-button svg,
+        .menu-dialog__close svg,
+        .menu-dialog a svg {
+          inline-size: 1.25rem;
+          block-size: 1.25rem;
+          stroke-width: 2;
+        }
+
+        .button-dark:hover {
+          background: var(--yellow);
+          border-color: var(--yellow);
+          color: var(--vermilion);
+        }
+
+        .mobile-menu-button {
+          position: fixed;
+          inset-block-start: 1rem;
+          inset-inline-end: 1rem;
+          z-index: 20;
+          display: none;
+          place-items: center;
+          inline-size: 3.5rem;
+          block-size: 3.5rem;
+          border: 0;
+          background: transparent;
+          color: var(--ink);
+          cursor: pointer;
+        }
+
+        .mobile-menu-button svg {
+          inline-size: 1.5rem;
+          block-size: 1.5rem;
+          stroke-width: 2;
+        }
+
+        .menu-dialog {
+          inline-size: min(24rem, 100%);
+          max-inline-size: none;
+          block-size: 100dvh;
+          max-block-size: none;
+          margin: 0 0 0 auto;
+          border: 0;
+          padding: 0;
+          background: var(--paper);
+          color: var(--ink);
+        }
+
+        .menu-dialog::backdrop {
+          background: rgb(0 0 0 / 48%);
+        }
+
+        .menu-dialog__inner {
+          display: flex;
+          flex-direction: column;
+          block-size: 100%;
+          padding: 1.5rem;
+        }
+
+        .menu-dialog__top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding-block-end: 1rem;
+          border-block-end: 0.0625rem solid var(--line);
+        }
+
+        .menu-dialog__title {
+          font-family: var(--font-serif);
+          font-size: 1.5rem;
+          font-weight: 700;
+        }
+
+        .menu-dialog__close {
+          display: grid;
+          place-items: center;
+          inline-size: 2.75rem;
+          block-size: 2.75rem;
+          border: 0.0625rem solid var(--line);
+          border-radius: 50%;
+          background: var(--canvas);
+          cursor: pointer;
+        }
+
+        .menu-dialog nav {
+          margin-block-start: 2rem;
+        }
+
+        .menu-dialog ul {
+          list-style: none;
+        }
+
+        .menu-dialog li + li {
+          border-block-start: 0.0625rem solid var(--line);
+        }
+
+        .menu-dialog a {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding-block: 1rem;
+          font-family: var(--font-serif);
+          font-size: 1.125rem;
+          font-weight: 600;
+          text-decoration: none;
+        }
+
+        .menu-dialog__profile {
+          margin-block-start: auto;
+          padding-block-start: 1rem;
+          border-block-start: 0.0625rem solid var(--line);
+          font-size: 0.8125rem;
+        }
+
+        .hero-carousel {
+          position: relative;
+          inline-size: 100%;
+          overflow: hidden;
+          background: var(--paper-muted);
+        }
+
+        .hero-carousel__viewport {
+          overflow: hidden;
+          padding-block: 1rem 3.25rem;
+        }
+
+        .hero-carousel__track {
+          display: flex;
+          align-items: stretch;
+          gap: 1rem;
+          transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: transform;
+        }
+
+        .hero-carousel__track.is-jumping {
+          transition: none;
+        }
+
+        .hero-slide {
+          flex: 0 0 72%;
+          display: grid;
+          grid-template-columns: 1.3fr 1fr;
+          overflow: hidden;
+          border: 0.0625rem solid var(--line);
+          border-radius: 1rem;
+          background: var(--canvas);
+          box-shadow: 0 0.5rem 1.5rem rgb(23 36 58 / 9%);
+        }
+
+        .hero-slide__media {
+          position: relative;
+          overflow: hidden;
+          background: var(--ink);
+          aspect-ratio: 4 / 3;
+        }
+
+        .hero-slide__media img {
+          inline-size: 100%;
+          block-size: 100%;
+          object-fit: cover;
+        }
+
+        .hero-slide__copy {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 3rem;
+          background: var(--canvas);
+        }
+
+        .category-label {
+          align-self: flex-start;
+          display: inline-block;
+          padding: 0.25rem 0.5rem;
+          border-radius: 999px;
+          background: var(--yellow);
+          color: var(--ink);
+          font-size: 0.75rem;
+          font-weight: 700;
+          line-height: 1.5;
+        }
+
+        .hero-slide__title {
+          margin-block-start: 1rem;
+          font-size: 2rem;
+          line-height: 1.55;
+        }
+
+        .hero-slide__summary {
+          margin-block-start: 1rem;
+          color: var(--muted);
+          font-size: 0.9375rem;
+        }
+
+        .hero-slide__meta {
+          margin-block-start: 1.5rem;
+          color: var(--muted);
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+
+        .hero-slide__link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.375rem;
+          align-self: flex-start;
+          margin-block-start: 1rem;
+          font-size: 0.8125rem;
+          font-weight: 700;
+        }
+
+        .hero-slide__link svg {
+          inline-size: 1rem;
+          block-size: 1rem;
+          stroke-width: 2;
+        }
+
+        .hero-controls {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          display: grid;
+          grid-template-columns: 1fr 72% 1fr;
+          align-items: center;
+          pointer-events: none;
+        }
+
+        .hero-controls__dots {
+          position: absolute;
+          inset-block-end: 1rem;
+          inset-inline-start: 50%;
+          display: flex;
+          gap: 0.5rem;
+          transform: translateX(-50%);
+          pointer-events: auto;
+        }
+
+        .hero-controls__dot {
+          inline-size: 0.625rem;
+          block-size: 0.625rem;
+          border: 0.0625rem solid var(--ink);
+          border-radius: 50%;
+          padding: 0;
+          background: var(--canvas);
+          cursor: pointer;
+        }
+
+        .hero-controls__dot[aria-current="true"] {
+          background: var(--ink);
+        }
+
+        .hero-controls__button {
+          display: grid;
+          place-items: center;
+          inline-size: 2.75rem;
+          block-size: 2.75rem;
+          border: 0.0625rem solid var(--line);
+          border-radius: 50%;
+          background: var(--canvas);
+          color: var(--ink);
+          cursor: pointer;
+          pointer-events: auto;
+        }
+
+        .hero-controls__button[data-slide-previous] {
+          grid-column: 1;
+          justify-self: end;
+          transform: translateX(50%);
+        }
+
+        .hero-controls__button[data-slide-next] {
+          grid-column: 3;
+          justify-self: start;
+          transform: translateX(-50%);
+        }
+
+        .hero-controls__button svg {
+          inline-size: 1.25rem;
+          block-size: 1.25rem;
+          stroke-width: 2;
+        }
+
+        .topic-strip {
+          background: var(--yellow);
+        }
+
+        .topic-strip__inner {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0.25rem 1.5rem;
+          inline-size: 100%;
+          padding: 0.5rem 2rem;
+        }
+
+        .topic-strip strong,
+        .topic-strip a {
+          font-size: 0.75rem;
+          font-weight: 700;
+        }
+
+        .article-card {
+          display: flex;
+          flex-direction: column;
+          border: 0.0625rem solid var(--line);
+          border-radius: 1rem;
+          overflow: hidden;
+          background: var(--paper);
+          box-shadow: 0 0.5rem 1.5rem rgb(23 36 58 / 9%);
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .article-card__media {
+          position: relative;
+          overflow: hidden;
+          aspect-ratio: 4 / 3;
+          background: var(--cyan);
+        }
+
+        .article-card__media img {
+          inline-size: 100%;
+          block-size: 100%;
+          object-fit: cover;
+        }
+
+        .article-card__label {
+          position: absolute;
+          inset-inline-start: 0.75rem;
+          inset-block-end: 0.75rem;
+          padding: 0.3rem 0.6rem;
+          border-radius: 999px;
+          background: var(--yellow);
+          color: var(--ink);
+          font-size: 0.6875rem;
+          font-weight: 700;
+        }
+
+        .article-card__body {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          padding: 1.125rem;
+        }
+
+        .article-card__title {
+          font-size: 0.9375rem;
+          line-height: 1.7;
+        }
+
+        .article-card__summary {
+          margin-block-start: 0.75rem;
+          color: var(--muted);
+          font-size: 0.8125rem;
+        }
+
+        .article-card__date {
+          margin-block-start: auto;
+          padding-block-start: 1rem;
+          color: var(--muted);
+          font-size: 0.6875rem;
+        }
+
+        .site-footer__name {
+          font-family: var(--font-serif);
+          font-size: 1.125rem;
+          font-weight: 700;
+        }
+
+        .site-footer__links {
+          display: grid;
+          gap: 0.5rem;
+          list-style: none;
+        }
+
+        .site-footer__heading {
+          margin-block-end: 0.75rem;
+          font-family: var(--font-serif);
+          font-size: 1rem;
+          font-weight: 600;
+        }
+
+        .site-footer__copyright {
+          grid-column: 1 / -1;
+          padding-block-start: 1.5rem;
+          border-block-start: 0.0625rem solid var(--line);
+          text-align: end;
+        }
+
+        .site-footer__reference {
+          grid-column: 1 / -1;
+          color: var(--muted);
+          font-size: 0.6875rem;
+        }
+
+        .site-footer__links a,
+        .site-footer small {
+          font-size: 0.75rem;
+        }
+
+        .about-section {
+          background: var(--paper-muted);
+        }
+
+        .about-section__inner {
+          display: grid;
+          grid-template-columns: 1fr 2fr auto;
+          align-items: center;
+          gap: 2rem;
+          padding-block: 4rem;
+        }
+
+        .about-section__label {
+          font-family: var(--font-serif);
+          font-size: 2rem;
+          font-weight: 600;
+        }
+
+        .about-section__copy {
+          color: var(--muted);
+          font-size: 0.9375rem;
+        }
+      }
+
+      @layer responsive {
+        @media (max-width: 63.9375rem) {
+          .hero-slide {
+            flex-basis: 82%;
+          }
+
+          .hero-slide__copy {
+            padding: 2rem;
+          }
+
+          .hero-slide__title {
+            font-size: 1.75rem;
+          }
+
+          .article-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .hero-controls {
+            grid-template-columns: 1fr 82% 1fr;
+          }
+
+          .site-footer__inner {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 47.9375rem) {
+          html {
+            scroll-behavior: auto;
+          }
+
+          .mobile-menu-button {
+            display: grid;
+          }
+
+          .site-header__actions {
+            display: none;
+          }
+
+          main {
+            padding-block-start: 2rem;
+          }
+
+          .content-section {
+            padding-inline: 1rem;
+          }
+
+          .hero-slide {
+            flex-basis: 80%;
+            grid-template-columns: 1fr;
+          }
+
+          .hero-slide__media {
+            aspect-ratio: 4 / 3;
+          }
+
+          .hero-slide__copy {
+            padding: 1.5rem;
+          }
+
+          .hero-slide__title {
+            font-size: 1.5rem;
+          }
+
+          .hero-slide__summary {
+            font-size: 0.875rem;
+          }
+
+          .hero-controls {
+            grid-template-columns: 1fr 80% 1fr;
+          }
+
+          .topic-strip__inner {
+            gap: 0.25rem 1rem;
+            padding-inline: 1rem;
+          }
+
+          .content-section {
+            padding-block: 3.5rem;
+          }
+
+          .section-heading {
+            grid-template-columns: 1fr;
+          }
+
+          .section-title {
+            grid-column: 1;
+            font-size: 1.5rem;
+          }
+
+          .section-heading .button-dark {
+            grid-column: 1;
+            justify-self: center;
+          }
+
+          .article-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .about-section__inner,
+          .site-footer__inner {
+            grid-template-columns: 1fr;
+          }
+
+          .about-section__inner {
+            inline-size: calc(100% - 2rem);
+          }
+
+          .site-footer__inner {
+            padding-inline: 1rem;
+          }
+
+          .site-footer__copyright {
+            grid-column: 1;
+            text-align: start;
+          }
+
+          .site-footer__reference {
+            grid-column: 1;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          html {
+            scroll-behavior: auto;
+          }
+
+          .hero-carousel__track {
+            transition: none;
+          }
+        }
+
+        @media (forced-colors: active) {
+          .hero-carousel,
+          .hero-slide,
+          .article-card,
+          .button-dark,
+          .hero-controls__button,
+          .mobile-menu-button {
+            border-color: CanvasText;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="mobile-menu-button"
+      type="button"
+      data-menu-open
+      aria-haspopup="dialog"
+      aria-controls="site-menu"
+      aria-expanded="false"
+      aria-label="メニューを開く"
+    >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <header class="site-header">
+      <div class="site-header__top">
+        <a class="site-header__name" href="#">Blog</a>
+        <div class="site-header__actions">
+          <button
+            class="button-dark icon-button"
+            type="button"
+            data-menu-open
+            aria-haspopup="dialog"
+            aria-controls="site-menu"
+            aria-expanded="false"
+            aria-label="メニューを開く"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <nav class="site-categories" aria-label="カテゴリー">
+        <ul>
+          <li><a href="#latest">Next.js</a></li>
+          <li><a href="#latest">React</a></li>
+          <li><a href="#latest">SCSS</a></li>
+          <li><a href="#ranking">Design</a></li>
+          <li><a href="#ranking">開発環境</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <dialog class="menu-dialog" id="site-menu" aria-labelledby="menu-title">
+      <div class="menu-dialog__inner">
+        <div class="menu-dialog__top">
+          <span class="menu-dialog__title" id="menu-title">Menu</span>
+          <form method="dialog">
+            <button
+              class="menu-dialog__close"
+              type="submit"
+              aria-label="メニューを閉じる"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </form>
+        </div>
+        <nav aria-label="サイトメニュー">
+          <ul>
+            <li>
+              <a href="#latest" data-menu-link>
+                <span>新着記事</span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="#latest" data-menu-link>
+                <span>Next.js</span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="#latest" data-menu-link>
+                <span>React</span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="#latest" data-menu-link>
+                <span>SCSS</span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="#ranking" data-menu-link>
+                <span>人気記事</span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <p class="menu-dialog__profile">
+          <a href="#footer" data-menu-link>プロフィール</a>　
+          <a href="#footer" data-menu-link>GitHub</a>
+        </p>
+      </div>
+    </dialog>
+
+    <main>
+      <h1 class="visually-hidden">Webフロントエンドの技術記事</h1>
+
+      <section
+        class="hero-carousel"
+        aria-label="注目の記事"
+        aria-roledescription="カルーセル"
+        data-carousel
+      >
+        <div class="hero-carousel__viewport" data-carousel-viewport>
+          <div
+            class="hero-carousel__track"
+            id="featured-articles"
+            data-carousel-track
+          >
+            <article class="hero-slide" data-slide>
+              <figure class="hero-slide__media">
+                <img
+                  src="assets/hero-editorial-collage.png"
+                  alt="紙のパーツで表現した、ブログの画面設計を進める作業机"
+                  width="1448"
+                  height="1086"
+                  fetchpriority="high"
+                />
+              </figure>
+              <div class="hero-slide__copy">
+                <span class="category-label">NEXT.JS</span>
+                <h2 class="hero-slide__title">
+                  更新しやすい静的ブログの構成を考える
+                </h2>
+                <p class="hero-slide__summary">
+                  記事、レイアウト、画像の責務を分けながら、小さく運用できる設計を考えます。
+                </p>
+                <p class="hero-slide__meta">2026.08.13　読了目安 8分</p>
+                <a class="hero-slide__link" href="#">
+                  記事を読む
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="hero-slide" data-slide>
+              <figure class="hero-slide__media">
+                <img
+                  src="assets/hero-react-components.png"
+                  alt="紙のカードと線で表現した、Reactコンポーネントの構成"
+                  width="1448"
+                  height="1086"
+                  loading="lazy"
+                />
+              </figure>
+              <div class="hero-slide__copy">
+                <span class="category-label">REACT</span>
+                <h2 class="hero-slide__title">
+                  Reactの状態管理を、シンプルに保つ
+                </h2>
+                <p class="hero-slide__summary">
+                  表示と操作の責務を整理し、変更箇所を追いやすいコンポーネント設計を検証します。
+                </p>
+                <p class="hero-slide__meta">2026.08.09　読了目安 6分</p>
+                <a class="hero-slide__link" href="#">
+                  記事を読む
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="hero-slide" data-slide>
+              <figure class="hero-slide__media">
+                <img
+                  src="assets/hero-scss-layers.png"
+                  alt="紙のレイヤーと色見本で表現した、SCSS設計の整理"
+                  width="1448"
+                  height="1086"
+                  loading="lazy"
+                />
+              </figure>
+              <div class="hero-slide__copy">
+                <span class="category-label">SCSS</span>
+                <h2 class="hero-slide__title">
+                  SCSSの依存関係を@useで整理する
+                </h2>
+                <p class="hero-slide__summary">
+                  依存関係を見える形にして、ページが増えても崩れにくいSCSS構成へ移行します。
+                </p>
+                <p class="hero-slide__meta">2026.08.03　読了目安 7分</p>
+                <a class="hero-slide__link" href="#">
+                  記事を読む
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-controls">
+          <button
+            class="hero-controls__button"
+            type="button"
+            data-slide-previous
+            aria-controls="featured-articles"
+            aria-label="前の注目記事"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+          <button
+            class="hero-controls__button"
+            type="button"
+            data-slide-next
+            aria-controls="featured-articles"
+            aria-label="次の注目記事"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+          <div
+            class="hero-controls__dots"
+            role="group"
+            aria-label="注目記事を選択"
+          >
+            <button
+              class="hero-controls__dot"
+              type="button"
+              data-slide-dot="0"
+              aria-label="注目記事1を表示"
+              aria-current="true"
+            ></button>
+            <button
+              class="hero-controls__dot"
+              type="button"
+              data-slide-dot="1"
+              aria-label="注目記事2を表示"
+              aria-current="false"
+            ></button>
+            <button
+              class="hero-controls__dot"
+              type="button"
+              data-slide-dot="2"
+              aria-label="注目記事3を表示"
+              aria-current="false"
+            ></button>
+          </div>
+        </div>
+      </section>
+
+      <nav class="topic-strip" aria-label="注目カテゴリー">
+        <div class="topic-strip__inner">
+          <strong>TOPICS</strong>
+          <a href="#latest"># Next.js</a>
+          <a href="#latest"># React</a>
+          <a href="#latest"># SCSS</a>
+          <a href="#ranking"># デザインレビュー</a>
+          <a href="#ranking"># 開発環境</a>
+        </div>
+      </nav>
+
+      <section
+        class="content-section"
+        id="latest"
+        aria-labelledby="latest-title"
+      >
+        <div class="section-heading">
+          <h2 class="section-title" id="latest-title">新着記事</h2>
+          <a class="button-dark" href="#latest">すべての記事を見る →</a>
+        </div>
+        <div class="article-grid">
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-editorial-collage.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">NEXT.JS</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                App Routerで記事とレイアウトを整理する
+              </h3>
+              <p class="article-card__summary">
+                静的出力を保ちながら、コンテンツの責務を分ける方法。
+              </p>
+              <time class="article-card__date" datetime="2026-08-13"
+                >2026.08.13</time
+              >
+            </div>
+          </a>
+
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-react-components.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">REACT</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">状態を増やさずUIを組み立てる</h3>
+              <p class="article-card__summary">
+                サーバーとクライアントの境界を、実装前に判断するための考え方。
+              </p>
+              <time class="article-card__date" datetime="2026-08-09"
+                >2026.08.09</time
+              >
+            </div>
+          </a>
+
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-scss-layers.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">SCSS</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                名前空間付き@useへ移行した記録
+              </h3>
+              <p class="article-card__summary">
+                依存関係を暗黙にせず、変更範囲を追いやすくするための整理。
+              </p>
+              <time class="article-card__date" datetime="2026-08-03"
+                >2026.08.03</time
+              >
+            </div>
+          </a>
+
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-editorial-collage.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">DESIGN</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                日本語記事の読みやすい余白を決める
+              </h3>
+              <p class="article-card__summary">
+                見出しと本文の関係を、実際の文章量から組み立てます。
+              </p>
+              <time class="article-card__date" datetime="2026-07-30"
+                >2026.07.30</time
+              >
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section
+        class="content-section"
+        id="ranking"
+        aria-labelledby="ranking-title"
+      >
+        <div class="section-heading">
+          <h2 class="section-title" id="ranking-title">よく読まれている記事</h2>
+        </div>
+        <div class="article-grid">
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-react-components.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">NEXT.JS</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                静的出力で先に決めておきたい境界
+              </h3>
+              <p class="article-card__summary">
+                ビルド時に完結させる範囲と、クライアントへ渡す責務を整理します。
+              </p>
+              <time class="article-card__date" datetime="2026-07-28"
+                >2026.07.28</time
+              >
+            </div>
+          </a>
+
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-editorial-collage.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">DESIGN</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                日本語の長い見出しをモバイルで確認する
+              </h3>
+              <p class="article-card__summary">
+                不自然な途中改行を避けるために、実際の画面幅で確認する項目。
+              </p>
+              <time class="article-card__date" datetime="2026-07-19"
+                >2026.07.19</time
+              >
+            </div>
+          </a>
+
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-scss-layers.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">SCSS</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                SCSSをページ単位で増やしすぎない構成
+              </h3>
+              <p class="article-card__summary">
+                所有するコンポーネントの近くへ置き、依存方向を単純に保つ方法。
+              </p>
+              <time class="article-card__date" datetime="2026-07-12"
+                >2026.07.12</time
+              >
+            </div>
+          </a>
+
+          <a class="article-card" href="#">
+            <div class="article-card__media">
+              <img
+                src="assets/hero-react-components.png"
+                alt=""
+                width="1448"
+                height="1086"
+                loading="lazy"
+              />
+              <span class="article-card__label">REACT</span>
+            </div>
+            <div class="article-card__body">
+              <h3 class="article-card__title">
+                コンポーネント分割を増やしすぎない基準
+              </h3>
+              <p class="article-card__summary">
+                再利用性と可読性が必要になった時点で分ける考え方。
+              </p>
+              <time class="article-card__date" datetime="2026-07-05"
+                >2026.07.05</time
+              >
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="about-section" id="about" aria-labelledby="about-title">
+        <div class="about-section__inner">
+          <h2 class="about-section__label" id="about-title">About</h2>
+          <p class="about-section__copy">
+            フロントエンドの設計と実装について、試したことと判断の根拠を記録しています。Next.js、React、SCSSを中心に扱います。
+          </p>
+          <a class="button-dark" href="#">プロフィールを見る</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="footer">
+      <div class="site-footer__inner">
+        <div>
+          <span class="site-footer__name">Blog</span>
+        </div>
+        <nav aria-label="フッターカテゴリー">
+          <h2 class="site-footer__heading">カテゴリー</h2>
+          <ul class="site-footer__links">
+            <li><a href="#latest">Next.js</a></li>
+            <li><a href="#latest">React</a></li>
+            <li><a href="#latest">SCSS</a></li>
+            <li><a href="#ranking">Design</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="アーカイブ">
+          <h2 class="site-footer__heading">アーカイブ</h2>
+          <ul class="site-footer__links">
+            <li><a href="#latest">新着記事</a></li>
+            <li><a href="#ranking">よく読まれている記事</a></li>
+            <li><a href="#">すべての記事</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="著者と外部リンク">
+          <h2 class="site-footer__heading">著者・リンク</h2>
+          <ul class="site-footer__links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">GitHub</a></li>
+          </ul>
+        </nav>
+        <small class="site-footer__copyright">© 2026 Blog</small>
+        <p class="site-footer__reference">
+          対象:
+          トップページ、ヘッダー、Hero、記事カード、操作、About、フッター、レスポンシブ状態。
+          対象外: 記事詳細、検索、一覧詳細、フォーム、ダークテーマ。
+          <a data-design-spec-contract href="../../DESIGN.md">DESIGN.md</a>
+        </p>
+      </div>
+    </footer>
+
+    <script type="module">
+      const menu = document.querySelector("#site-menu");
+      const menuOpeners = document.querySelectorAll("[data-menu-open]");
+      const menuLinks = menu.querySelectorAll("[data-menu-link]");
+
+      const setMenuState = (isOpen) => {
+        for (const opener of menuOpeners) {
+          opener.setAttribute("aria-expanded", String(isOpen));
+        }
+      };
+
+      for (const opener of menuOpeners) {
+        opener.addEventListener("click", () => {
+          menu.showModal();
+          setMenuState(true);
+        });
+      }
+
+      for (const link of menuLinks) {
+        link.addEventListener("click", () => menu.close());
+      }
+
+      menu.addEventListener("close", () => setMenuState(false));
+
+      menu.addEventListener("click", (event) => {
+        if (event.target === menu) menu.close();
+      });
+
+      const carousel = document.querySelector("[data-carousel]");
+      const viewport = carousel.querySelector("[data-carousel-viewport]");
+      const track = carousel.querySelector("[data-carousel-track]");
+      const originals = [...track.querySelectorAll("[data-slide]")];
+      const slideDots = [...document.querySelectorAll("[data-slide-dot]")];
+      const firstClone = originals[0].cloneNode(true);
+      const lastClone = originals.at(-1).cloneNode(true);
+
+      firstClone.dataset.clone = "true";
+      lastClone.dataset.clone = "true";
+      track.prepend(lastClone);
+      track.append(firstClone);
+
+      const slides = [...track.querySelectorAll("[data-slide]")];
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      let activeSlide = 1;
+      let isMoving = false;
+
+      const logicalIndex = () => {
+        if (activeSlide === 0) return originals.length - 1;
+        if (activeSlide === slides.length - 1) return 0;
+        return activeSlide - 1;
+      };
+
+      const updateSlideState = () => {
+        for (const [index, slide] of slides.entries()) {
+          const isActive = index === activeSlide;
+          slide.setAttribute("aria-hidden", String(!isActive));
+          slide
+            .querySelector("a")
+            ?.setAttribute("tabindex", isActive ? "0" : "-1");
+        }
+        for (const [index, dot] of slideDots.entries()) {
+          dot.setAttribute("aria-current", String(index === logicalIndex()));
+        }
+      };
+
+      const positionSlide = (shouldAnimate = true) => {
+        track.classList.toggle("is-jumping", !shouldAnimate);
+        const slide = slides[activeSlide];
+        const offset =
+          viewport.clientWidth / 2 - (slide.offsetLeft + slide.offsetWidth / 2);
+        track.style.transform = `translate3d(${offset}px, 0, 0)`;
+        updateSlideState();
+      };
+
+      const showSlide = (nextSlide) => {
+        if (isMoving) return;
+        if (reducedMotion.matches) {
+          activeSlide =
+            ((nextSlide - 1 + originals.length) % originals.length) + 1;
+          positionSlide(false);
+          return;
+        }
+        isMoving = true;
+        activeSlide = nextSlide;
+        positionSlide();
+      };
+
+      track.addEventListener("transitionend", () => {
+        if (activeSlide === 0) activeSlide = originals.length;
+        if (activeSlide === slides.length - 1) activeSlide = 1;
+        positionSlide(false);
+        isMoving = false;
+      });
+
+      document
+        .querySelector("[data-slide-previous]")
+        .addEventListener("click", () => showSlide(activeSlide - 1));
+      document
+        .querySelector("[data-slide-next]")
+        .addEventListener("click", () => showSlide(activeSlide + 1));
+
+      for (const dot of slideDots) {
+        dot.addEventListener("click", () => {
+          const nextSlide = Number(dot.dataset.slideDot) + 1;
+          if (nextSlide !== activeSlide) showSlide(nextSlide);
+        });
+      }
+
+      carousel.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") showSlide(activeSlide - 1);
+        if (event.key === "ArrowRight") showSlide(activeSlide + 1);
+      });
+
+      new ResizeObserver(() => positionSlide(false)).observe(viewport);
+      requestAnimationFrame(() => positionSlide(false));
+    </script>
+  </body>
+</html>
