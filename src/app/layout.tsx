@@ -58,8 +58,11 @@ type RootLayoutProps = Readonly<{
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="ja">
-      <body className={`${notoSansJp.variable} ${notoSerifJp.variable}`}>
+    <html
+      lang="ja"
+      className={`${notoSansJp.variable} ${notoSerifJp.variable}`}
+    >
+      <body>
         <SmoothAnchorScroll />
         <SiteHeader />
         {children}
