@@ -1,0 +1,39 @@
+@use "./styles/functions";
+@use "./styles/mixins";
+
+.externalLink {
+  &:focus-visible .externalIcon {
+    opacity: 0.6;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover .externalIcon {
+      opacity: 0.6;
+    }
+  }
+}
+
+.externalIcon {
+  display: inline-block;
+  inline-size: functions.rem(14);
+  block-size: functions.rem(14);
+  margin-inline-start: functions.rem(4);
+  vertical-align: -0.08em;
+  transition: opacity 180ms ease;
+
+  @include mixins.reduced-motion {
+    transition: none;
+  }
+}
+
+.visuallyHidden:not(:focus, :active) {
+  position: absolute;
+  overflow: hidden;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

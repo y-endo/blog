@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, join } from "node:path";
 
 import { createProcessor } from "@mdx-js/mdx";
 import GithubSlugger from "github-slugger";
@@ -10,6 +10,7 @@ import type {
   TableOfContentsItem,
   TableOfContentsSection,
 } from "@/lib/post";
+import { postModules } from "@/lib/post-modules";
 
 const contentDirectory = join(process.cwd(), "content/posts");
 const postImagesDirectory = join(process.cwd(), "public/images/posts");
@@ -164,8 +165,8 @@ function readPost(fileName: string): PostSource {
   };
 }
 
-const postSources = readdirSync(contentDirectory)
-  .filter((fileName) => fileName.endsWith(".mdx"))
+const postSources = Object.keys(postModules)
+  .map((postPath) => basename(postPath))
   .map(readPost)
   .sort((left, right) =>
     right.post.publishedAt.localeCompare(left.post.publishedAt),
@@ -173,9 +174,13 @@ const postSources = readdirSync(contentDirectory)
 const publishedPostSources = postSources.filter(({ post }) => !post.draft);
 
 export const posts = publishedPostSources.map(({ post }) => post);
+const generatedPostSources =
+  process.env.NODE_ENV === "production" ? publishedPostSources : postSources;
 // Static Export requires one generated parameter even before the first article is published.
 export const postSlugs =
-  posts.length > 0 ? posts.map(({ slug }) => slug) : ["__no-published-posts__"];
+  generatedPostSources.length > 0
+    ? generatedPostSources.map(({ post }) => post.slug)
+    : ["__no-published-posts__"];
 export const postTags = [...new Set(posts.flatMap(({ tags }) => tags))];
 
 export const heroPosts = posts.slice(0, 3);

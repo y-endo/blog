@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { MDXContent } from "mdx/types";
 
 import { ArticleTableOfContents } from "@/app/posts/[slug]/_components/article-table-of-contents";
 import { formatPublishedAt, postImageSize } from "@/lib/post";
+import { postModules } from "@/lib/post-modules";
 import { getPost, getPostTableOfContents, postSlugs } from "@/lib/posts";
 import { getAbsoluteUrl, openGraphImage, siteName } from "@/lib/site";
 
@@ -13,6 +15,10 @@ import styles from "./page.module.scss";
 type PostPageProps = Readonly<{
   params: Promise<{ slug: string }>;
 }>;
+
+function isMdxContent(value: unknown): value is MDXContent {
+  return typeof value === "function";
+}
 
 export function generateStaticParams() {
   return postSlugs.map((slug) => ({ slug }));
@@ -61,9 +67,13 @@ export default async function PostPage({ params }: PostPageProps) {
 
   if (!post) notFound();
 
-  const { default: PostContent } = await import(
-    `../../../../content/posts/${slug}.mdx`
-  );
+  const loadPostContent = postModules[`../../content/posts/${slug}.mdx`];
+  if (!loadPostContent) notFound();
+
+  const PostContent = await loadPostContent();
+  if (!isMdxContent(PostContent)) {
+    throw new Error(`${slug}.mdxを読み込めません。`);
+  }
 
   const tableOfContents = getPostTableOfContents(slug);
   const canonicalUrl = getAbsoluteUrl(`/posts/${post.slug}/`);
