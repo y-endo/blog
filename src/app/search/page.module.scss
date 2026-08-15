@@ -1,0 +1,31 @@
+@use "../../styles/functions";
+@use "../../styles/mixins";
+@use "../../styles/tokens";
+
+.page {
+  inline-size: 100%;
+  padding: tokens.$space-12 tokens.$space-4 tokens.$space-18;
+
+  @include mixins.tablet {
+    padding-inline: tokens.$space-8;
+  }
+}
+
+.header {
+  max-inline-size: functions.rem(760);
+  margin-inline: auto;
+  text-align: center;
+
+  h1 {
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(32);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  p {
+    margin-block-start: tokens.$space-3;
+    color: tokens.$color-text-muted;
+    font-size: functions.rem(14);
+  }
+}

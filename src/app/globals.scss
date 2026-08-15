@@ -4,8 +4,15 @@
 
 :root {
   --color-background: #{tokens.$color-background};
+  --color-border: #{tokens.$color-border};
+  --color-focus: #{tokens.$color-focus};
+  --color-primary: #{tokens.$color-primary};
+  --color-surface: #{tokens.$color-surface};
+  --color-surface-muted: #{tokens.$color-surface-muted};
   --color-text: #{tokens.$color-text};
+  --color-text-muted: #{tokens.$color-text-muted};
   --font-family-sans: #{tokens.$font-family-sans};
+  --font-family-serif: #{tokens.$font-family-serif};
   --font-size-body: #{tokens.$font-size-body};
   --line-height-body: #{tokens.$line-height-body};
 }

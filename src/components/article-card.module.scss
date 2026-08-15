@@ -1,0 +1,96 @@
+@use "../styles/functions";
+@use "../styles/mixins";
+@use "../styles/tokens";
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border-block-end: 1px solid tokens.$color-border;
+  background: tokens.$color-background;
+  text-decoration: none;
+}
+
+.media {
+  overflow: hidden;
+  border-radius: functions.rem(12);
+  background: tokens.$color-surface-muted;
+  aspect-ratio: 16 / 10;
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transition: transform 240ms ease;
+  }
+}
+
+.dateLine {
+  display: flex;
+  align-items: center;
+  gap: tokens.$space-2;
+  margin-block-start: tokens.$space-3;
+  color: tokens.$color-text-muted;
+
+  &::after {
+    flex: 1;
+    block-size: 1px;
+    background: tokens.$color-border;
+    content: "";
+  }
+
+  time {
+    font-size: functions.rem(10);
+    line-height: 1;
+  }
+}
+
+.body {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1;
+  flex-direction: column;
+  padding-block: functions.rem(13) tokens.$space-4;
+
+  h3 {
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(15);
+    font-weight: 600;
+    line-height: 1.7;
+  }
+
+  p {
+    margin-block-start: tokens.$space-3;
+    color: tokens.$color-text-muted;
+    font-size: functions.rem(13);
+  }
+}
+
+.category {
+  align-self: flex-start;
+  margin-block-start: tokens.$space-4;
+  color: tokens.$color-primary;
+  font-size: functions.rem(11);
+  font-weight: 700;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: tokens.$space-1 tokens.$space-2;
+  margin-block-start: tokens.$space-2;
+  color: tokens.$color-text-muted;
+  font-size: functions.rem(10);
+  list-style: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .media img {
+    transform: scale(1.025);
+  }
+}
+
+@include mixins.reduced-motion {
+  .media img {
+    transition: none;
+  }
+}

@@ -1,0 +1,108 @@
+@use "../../../../styles/functions";
+@use "../../../../styles/mixins";
+@use "../../../../styles/tokens";
+
+.tableOfContents {
+  inline-size: calc(100% - #{tokens.$space-8});
+  max-inline-size: functions.rem(760);
+  margin: tokens.$space-10 auto 0;
+  border-block: 1px solid tokens.$color-border;
+
+  &::details-content {
+    overflow: clip;
+    block-size: 0;
+    opacity: 0;
+    transition:
+      block-size 240ms ease,
+      content-visibility 240ms allow-discrete,
+      opacity 180ms ease;
+  }
+
+  &[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-block-size: functions.rem(52);
+    padding-block: tokens.$space-3;
+    cursor: pointer;
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(16);
+    font-weight: 600;
+    list-style: none;
+    transition: color 180ms ease;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:focus-visible {
+      color: tokens.$color-primary;
+      outline: 2px solid tokens.$color-focus;
+      outline-offset: 2px;
+    }
+
+    svg {
+      inline-size: functions.rem(18);
+      block-size: functions.rem(18);
+      transition: transform 180ms ease;
+    }
+  }
+
+  &[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  nav {
+    padding-block: tokens.$space-2 tokens.$space-6;
+  }
+
+  ol {
+    display: grid;
+    gap: tokens.$space-3;
+    padding: 0;
+    list-style: none;
+  }
+
+  ol ol {
+    gap: tokens.$space-2;
+    margin-block-start: tokens.$space-2;
+    padding-inline-start: tokens.$space-5;
+  }
+
+  a {
+    font-size: functions.rem(14);
+    line-height: 1.7;
+    transition: color 180ms ease;
+
+    &:focus-visible {
+      color: tokens.$color-primary;
+    }
+  }
+}
+
+@supports (interpolate-size: allow-keywords) {
+  .tableOfContents {
+    interpolate-size: allow-keywords;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tableOfContents summary:hover,
+  .tableOfContents a:hover {
+    color: tokens.$color-primary;
+  }
+}
+
+@include mixins.reduced-motion {
+  .tableOfContents::details-content,
+  .tableOfContents summary,
+  .tableOfContents summary svg,
+  .tableOfContents a {
+    transition: none;
+  }
+}

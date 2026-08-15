@@ -1,6 +1,7 @@
 # デプロイ準備
 
 `.github/workflows/deploy.yml`は手動実行だけを許可し、GitHub ActionsのOIDCでAWSへ接続します。
+公開記事が0件の場合は、AWSへ接続する前にデプロイを停止します。
 
 ## GitHub Environment
 
@@ -21,6 +22,8 @@
 - CloudFrontはS3 Website Endpointではなく、通常のS3 OriginへOACで接続します。
 - IAM Roleの信頼条件は、このリポジトリの`production` Environmentへ限定します。
 - IAM Roleには、対象バケットの同期と対象DistributionのInvalidationに必要な権限だけを付与します。
-- `trailingSlash: true`で生成したURLを`index.html`へ解決するViewer request処理をCloudFrontへ設定します。
+- `trailingSlash: true`で生成したURLを`index.html`へ解決するViewer request処理をCloudFront Functionへ設定します。
+- CloudFrontのカスタムエラーレスポンスで、S3からの`403`と`404`を`/404.html`へ割り当て、レスポンスコードを`404`にします。OACを利用するS3 Originでは、存在しないオブジェクトが`403`になる場合があるため両方を設定します。
+- エラーレスポンスのキャッシュ時間は、公開前の確認中は`0`、運用開始後は更新頻度に合わせて短い値へ設定します。
 
 AWSリソース自体は、このスケルトンでは作成しません。

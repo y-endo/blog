@@ -1,17 +1,376 @@
+@use "sass:color";
+@use "../styles/functions";
 @use "../styles/mixins";
 @use "../styles/tokens";
 
-.page {
-  display: grid;
-  min-height: 100svh;
-  padding: tokens.$space-4;
-  place-items: center;
+.visuallyHidden:not(:focus, :active) {
+  position: absolute;
+  overflow: hidden;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.topics {
+  --scrollbar-thumb: #{tokens.$color-scrollbar-thumb};
+  --scrollbar-track: #{tokens.$color-surface};
+
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: tokens.$space-1 tokens.$space-4;
+  inline-size: calc(100% - #{tokens.$space-8});
+  margin-block-start: tokens.$space-6;
+  margin-inline: auto;
+  padding-block: tokens.$space-2 tokens.$space-3;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
 
   @include mixins.tablet {
-    padding: tokens.$space-6;
+    gap: tokens.$space-1 tokens.$space-6;
+    inline-size: calc(100% - #{tokens.$space-16});
+  }
+
+  strong,
+  a {
+    flex: 0 0 auto;
+    font-size: functions.rem(12);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  a {
+    transition: color 180ms ease;
+  }
+}
+
+@supports not (scrollbar-color: auto) {
+  .topics::-webkit-scrollbar {
+    height: functions.rem(5);
+  }
+
+  .topics::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--scrollbar-thumb);
+  }
+
+  .topics::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: var(--scrollbar-track);
+  }
+}
+
+.section {
+  inline-size: 100%;
+  padding: functions.rem(56) tokens.$space-4;
+
+  @include mixins.tablet {
+    padding: tokens.$space-18 tokens.$space-8;
+  }
+}
+
+.heading {
+  display: grid;
+  gap: tokens.$space-6;
+  justify-items: center;
+  margin-block-end: functions.rem(28);
+
+  h2 {
+    position: relative;
+    padding-block-end: tokens.$space-4;
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(24);
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+
+    &::after {
+      position: absolute;
+      inset-block-end: functions.rem(2);
+      inset-inline-start: 50%;
+      inline-size: min(functions.rem(240), calc(100vw - #{tokens.$space-8}));
+      block-size: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color.change(tokens.$color-primary, $alpha: 0.38) 28%,
+        tokens.$color-primary 50%,
+        color.change(tokens.$color-primary, $alpha: 0.38) 72%,
+        transparent
+      );
+      content: "";
+      transform: translateX(-50%);
+    }
+
+    @include mixins.tablet {
+      font-size: functions.rem(28);
+    }
+  }
+}
+
+.grid {
+  display: grid;
+  gap: tokens.$space-10;
+
+  @include mixins.tablet {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   @include mixins.pc {
-    padding: tokens.$space-8;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.emptyMessage {
+  color: tokens.$color-text-muted;
+  font-size: functions.rem(14);
+  text-align: center;
+}
+
+.primaryLink {
+  display: flex;
+  align-items: center;
+  gap: functions.rem(6);
+  justify-content: center;
+  inline-size: fit-content;
+  min-block-size: functions.rem(44);
+  margin: tokens.$space-10 auto 0;
+  border: 2px solid tokens.$color-text;
+  border-radius: functions.rem(12);
+  padding: functions.rem(10) tokens.$space-4;
+  background: tokens.$color-text;
+  color: tokens.$color-background;
+  font-size: functions.rem(13);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+
+  svg {
+    inline-size: functions.rem(16);
+    block-size: functions.rem(16);
+    transition: transform 180ms ease;
+  }
+}
+
+.searchSection {
+  padding: functions.rem(56) tokens.$space-4;
+  background: tokens.$color-surface-muted;
+
+  @include mixins.tablet {
+    padding-inline: tokens.$space-8;
+  }
+}
+
+.searchInner {
+  display: grid;
+  gap: tokens.$space-5;
+  align-items: center;
+
+  @include mixins.tablet {
+    grid-template-columns: minmax(functions.rem(352), 0.65fr) minmax(0, 1.7fr);
+    gap: tokens.$space-6;
+  }
+}
+
+.searchIntro {
+  h2 {
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(24);
+    font-weight: 600;
+
+    @include mixins.tablet {
+      font-size: functions.rem(28);
+    }
+  }
+
+  p {
+    margin-block-start: tokens.$space-3;
+    color: tokens.$color-text;
+    font-size: functions.rem(14);
+  }
+}
+
+.searchPanel {
+  min-inline-size: 0;
+}
+
+.searchForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  border: 1px solid tokens.$color-primary;
+  border-radius: functions.rem(12);
+  background: tokens.$color-background;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+
+  &:focus-within {
+    border-color: tokens.$color-focus;
+    box-shadow: 0 0 0 2px tokens.$color-focus;
+  }
+
+  input {
+    min-inline-size: 0;
+    min-block-size: functions.rem(56);
+    border: 0;
+    padding-inline: tokens.$space-2 0;
+    background: transparent;
+    color: tokens.$color-text;
+    outline: 0;
+
+    @include mixins.tablet {
+      padding-inline: tokens.$space-4;
+    }
+
+    &::placeholder {
+      color: tokens.$color-primary;
+      opacity: 1;
+    }
+  }
+
+  button {
+    display: grid;
+    inline-size: tokens.$space-12;
+    block-size: functions.rem(56);
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: tokens.$color-text;
+    cursor: pointer;
+    place-items: center;
+    transition: opacity 180ms ease;
+
+    @include mixins.tablet {
+      inline-size: functions.rem(56);
+    }
+
+    svg {
+      inline-size: functions.rem(20);
+      block-size: functions.rem(20);
+    }
+  }
+}
+
+.about {
+  background: tokens.$color-surface-muted;
+}
+
+.aboutInner {
+  display: grid;
+  gap: tokens.$space-8;
+  justify-items: center;
+  inline-size: calc(100% - #{tokens.$space-8});
+  max-inline-size: functions.rem(1280);
+  margin-inline: auto;
+  padding-block: tokens.$space-16;
+
+  h2 {
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(32);
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.aboutCopy {
+  max-inline-size: functions.rem(760);
+  color: tokens.$color-text;
+  font-size: functions.rem(15);
+  text-align: center;
+}
+
+.aboutTopics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: tokens.$space-5;
+  inline-size: 100%;
+  max-inline-size: functions.rem(760);
+  list-style: none;
+
+  @include mixins.tablet {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  li {
+    display: grid;
+    gap: tokens.$space-1;
+    min-inline-size: 0;
+    text-align: center;
+  }
+
+  strong {
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(18);
+    font-weight: 600;
+  }
+
+  span {
+    color: tokens.$color-primary;
+    font-size: functions.rem(12);
+  }
+}
+
+.aboutLink {
+  display: inline-flex;
+  align-items: center;
+  gap: functions.rem(6);
+  font-size: functions.rem(13);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: functions.rem(4);
+  transition: color 180ms ease;
+
+  svg {
+    inline-size: functions.rem(16);
+    block-size: functions.rem(16);
+    transition: transform 180ms ease;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .topics a:hover {
+    color: tokens.$color-primary;
+  }
+
+  .primaryLink:hover {
+    border-color: tokens.$color-accent;
+    background: tokens.$color-accent;
+    color: tokens.$color-primary;
+
+    svg {
+      transform: translateX(functions.rem(3));
+    }
+  }
+
+  .aboutLink:hover {
+    color: tokens.$color-primary;
+
+    svg {
+      transform: translateX(functions.rem(3));
+    }
+  }
+
+  .searchForm button:hover {
+    opacity: 0.6;
+  }
+}
+
+@include mixins.reduced-motion {
+  .topics a,
+  .primaryLink,
+  .primaryLink svg,
+  .searchForm,
+  .searchForm button,
+  .aboutLink,
+  .aboutLink svg {
+    transition: none;
   }
 }

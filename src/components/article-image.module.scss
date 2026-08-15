@@ -1,0 +1,20 @@
+@use "../styles/functions";
+@use "../styles/tokens";
+
+.figure {
+  margin-block: tokens.$space-10;
+
+  img {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    border-radius: functions.rem(12);
+  }
+
+  figcaption {
+    margin-block-start: tokens.$space-3;
+    color: tokens.$color-text-muted;
+    font-size: functions.rem(12);
+    line-height: 1.7;
+  }
+}

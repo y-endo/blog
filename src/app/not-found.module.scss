@@ -1,0 +1,108 @@
+@use "../styles/functions";
+@use "../styles/mixins";
+@use "../styles/tokens";
+
+.page {
+  display: grid;
+  min-block-size: functions.rem(560);
+  padding: functions.rem(96) tokens.$space-4 functions.rem(120);
+  place-items: center;
+
+  @include mixins.tablet {
+    padding-inline: tokens.$space-8;
+  }
+}
+
+.inner {
+  display: grid;
+  justify-items: center;
+  max-inline-size: functions.rem(640);
+  text-align: center;
+
+  h1 {
+    margin-block-start: tokens.$space-4;
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(28);
+    font-weight: 600;
+    line-height: 1.5;
+
+    @include mixins.tablet {
+      font-size: functions.rem(32);
+    }
+  }
+}
+
+.code {
+  color: tokens.$color-primary;
+  font-family: tokens.$font-family-serif;
+  font-size: functions.rem(20);
+  font-weight: 600;
+}
+
+.description {
+  margin-block-start: tokens.$space-4;
+  color: tokens.$color-text-muted;
+  font-size: functions.rem(14);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: tokens.$space-4 tokens.$space-6;
+  justify-content: center;
+  margin-block-start: tokens.$space-8;
+}
+
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: functions.rem(6);
+  min-block-size: functions.rem(44);
+  border: 2px solid tokens.$color-text;
+  border-radius: functions.rem(12);
+  padding: functions.rem(10) tokens.$space-4;
+  background: tokens.$color-text;
+  color: tokens.$color-background;
+  font-size: functions.rem(13);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+
+  svg {
+    inline-size: functions.rem(16);
+    block-size: functions.rem(16);
+    transition: transform 180ms ease;
+  }
+}
+
+.secondaryLink {
+  font-size: functions.rem(13);
+  font-weight: 700;
+  transition: color 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primaryLink:hover {
+    background: tokens.$color-background;
+    color: tokens.$color-text;
+
+    svg {
+      transform: translateX(functions.rem(3));
+    }
+  }
+
+  .secondaryLink:hover {
+    color: tokens.$color-primary;
+  }
+}
+
+@include mixins.reduced-motion {
+  .primaryLink,
+  .primaryLink svg,
+  .secondaryLink {
+    transition: none;
+  }
+}

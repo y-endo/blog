@@ -1,0 +1,147 @@
+@use "../../styles/functions";
+@use "../../styles/mixins";
+@use "../../styles/tokens";
+
+.trigger,
+.close {
+  display: grid;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  place-items: center;
+  transition: color 180ms ease;
+
+  svg {
+    inline-size: functions.rem(24);
+    block-size: functions.rem(24);
+    stroke-width: 2;
+  }
+}
+
+.trigger {
+  inline-size: functions.rem(48);
+  block-size: functions.rem(48);
+}
+
+.dialog {
+  inline-size: min(functions.rem(384), 100%);
+  max-inline-size: none;
+  block-size: 100dvh;
+  max-block-size: none;
+  margin: 0 0 0 auto;
+  border: 0;
+  padding: 0;
+  background: tokens.$color-surface;
+  color: tokens.$color-text;
+  opacity: 0;
+  transform: translateX(100%);
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease,
+    display 240ms allow-discrete,
+    overlay 240ms allow-discrete;
+
+  &[open] {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  &::backdrop {
+    background: rgb(0 0 0 / 48%);
+    opacity: 0;
+    transition:
+      opacity 240ms ease,
+      display 240ms allow-discrete,
+      overlay 240ms allow-discrete;
+  }
+
+  &[open]::backdrop {
+    opacity: 1;
+  }
+}
+
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.panel {
+  position: relative;
+  block-size: 100%;
+  padding: tokens.$space-4 tokens.$space-6 tokens.$space-6;
+
+  @include mixins.tablet {
+    padding: functions.rem(14) tokens.$space-8 tokens.$space-8;
+  }
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  min-block-size: functions.rem(56);
+  padding-inline-end: functions.rem(72);
+  padding-block-end: tokens.$space-4;
+  border-block-end: 1px solid tokens.$color-border;
+  font-family: tokens.$font-family-serif;
+  font-size: functions.rem(24);
+  font-weight: 700;
+}
+
+.close {
+  position: absolute;
+  inset-block-start: tokens.$space-4;
+  inset-inline-end: tokens.$space-4;
+  inline-size: functions.rem(56);
+  block-size: functions.rem(56);
+
+  @include mixins.tablet {
+    inset-block-start: functions.rem(14);
+    inset-inline-end: tokens.$space-8;
+    inline-size: functions.rem(48);
+    block-size: functions.rem(48);
+  }
+}
+
+@include mixins.reduced-motion {
+  .dialog,
+  .dialog::backdrop,
+  .trigger,
+  .close,
+  .links a {
+    transition: none;
+  }
+}
+
+.links {
+  margin-block-start: tokens.$space-8;
+  list-style: none;
+
+  li + li {
+    border-block-start: 1px solid tokens.$color-border;
+  }
+
+  a {
+    display: block;
+    padding-block: tokens.$space-4;
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(18);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trigger:hover,
+  .close:hover,
+  .links a:hover {
+    color: tokens.$color-primary;
+  }
+}

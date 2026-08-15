@@ -1,0 +1,290 @@
+@use "../../styles/functions";
+@use "../../styles/mixins";
+@use "../../styles/tokens";
+
+.skipLink {
+  position: fixed;
+  inset-block-start: tokens.$space-2;
+  inset-inline-start: tokens.$space-2;
+  z-index: 30;
+  padding: tokens.$space-2 tokens.$space-4;
+  background: tokens.$color-text;
+  color: tokens.$color-background;
+
+  &:not(:focus) {
+    overflow: hidden;
+    inline-size: 1px;
+    block-size: 1px;
+    clip-path: inset(50%);
+  }
+}
+
+.shell {
+  position: relative;
+  min-block-size: functions.rem(127);
+
+  &[data-visible="false"] .header {
+    transform: translateY(-100%);
+  }
+}
+
+.header {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 20;
+  inline-size: 100%;
+  background: tokens.$color-background;
+  transform: translateY(0);
+  transition: transform 240ms ease;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-block-size: functions.rem(76);
+  padding-inline: tokens.$space-4;
+
+  @include mixins.tablet {
+    padding-inline: tokens.$space-8;
+  }
+}
+
+.logo {
+  display: block;
+  grid-column: 2;
+  inline-size: functions.rem(144);
+  text-decoration: none;
+  transition: opacity 180ms ease;
+
+  img {
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  @include mixins.tablet {
+    inline-size: functions.rem(180);
+  }
+}
+
+.actions {
+  display: flex;
+  grid-column: 3;
+  align-items: center;
+  justify-self: end;
+}
+
+.search {
+  display: grid;
+  inline-size: functions.rem(48);
+  block-size: functions.rem(48);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: tokens.$color-text;
+  cursor: pointer;
+  place-items: center;
+  transition: color 180ms ease;
+
+  svg {
+    inline-size: functions.rem(21);
+    block-size: functions.rem(21);
+  }
+}
+
+.searchDisclosure {
+  display: grid;
+  visibility: hidden;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  background: tokens.$color-surface;
+  transition:
+    grid-template-rows 240ms ease,
+    opacity 180ms ease,
+    visibility 240ms;
+
+  &[data-open="true"] {
+    visibility: visible;
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+.searchInner {
+  overflow: hidden;
+
+  form {
+    max-inline-size: functions.rem(760);
+    margin-inline: auto;
+    padding: tokens.$space-6 tokens.$space-4 tokens.$space-8;
+
+    @include mixins.tablet {
+      padding-inline: tokens.$space-8;
+    }
+  }
+
+  label {
+    display: block;
+    margin-block-end: tokens.$space-2;
+    font-size: functions.rem(13);
+    font-weight: 700;
+  }
+}
+
+.searchField {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  min-block-size: functions.rem(56);
+  border: 1px solid tokens.$color-text-muted;
+  border-radius: functions.rem(12);
+  background: tokens.$color-background;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+
+  &:focus-within {
+    border-color: tokens.$color-focus;
+    box-shadow: 0 0 0 2px tokens.$color-focus;
+  }
+
+  input {
+    min-inline-size: 0;
+    border: 0;
+    padding: tokens.$space-4;
+    background: transparent;
+    color: tokens.$color-text;
+    outline: 0;
+  }
+
+  button {
+    display: grid;
+    inline-size: functions.rem(48);
+    block-size: functions.rem(48);
+    margin-inline-end: tokens.$space-1;
+    border: 0;
+    border-radius: 50%;
+    padding: 0;
+    background: tokens.$color-text;
+    color: tokens.$color-background;
+    cursor: pointer;
+    place-items: center;
+    transition: opacity 180ms ease;
+
+    svg {
+      inline-size: functions.rem(18);
+      block-size: functions.rem(18);
+    }
+  }
+}
+
+.categories {
+  display: grid;
+  overflow: hidden;
+  visibility: visible;
+  grid-template-rows: 1fr;
+  border-block: 1px solid tokens.$color-border;
+  opacity: 1;
+  transition:
+    grid-template-rows 240ms ease,
+    border-width 240ms ease,
+    border-color 240ms ease,
+    opacity 180ms ease,
+    visibility 240ms;
+
+  ul {
+    --scrollbar-thumb: #{tokens.$color-scrollbar-thumb};
+    --scrollbar-track: #{tokens.$color-surface};
+
+    display: flex;
+    overflow: auto hidden;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    inline-size: calc(100% - #{tokens.$space-8});
+    min-block-size: 0;
+    gap: tokens.$space-8;
+    margin-inline: auto;
+    padding-block: functions.rem(10);
+    list-style: none;
+    overscroll-behavior-inline: contain;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-width: thin;
+    transition: padding-block 240ms ease;
+
+    @include mixins.tablet {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: tokens.$space-1 tokens.$space-10;
+    }
+  }
+
+  li {
+    flex: 0 0 auto;
+  }
+
+  a {
+    font-size: functions.rem(13);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 180ms ease;
+  }
+}
+
+@supports not (scrollbar-color: auto) {
+  .categories ul::-webkit-scrollbar {
+    height: functions.rem(5);
+  }
+
+  .categories ul::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--scrollbar-thumb);
+  }
+
+  .categories ul::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: var(--scrollbar-track);
+  }
+}
+
+.shell[data-compact="true"] .categories {
+  visibility: hidden;
+  grid-template-rows: 0fr;
+  border-block-width: 0;
+  border-color: transparent;
+  opacity: 0;
+
+  ul {
+    padding-block: 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logo:hover {
+    opacity: 0.72;
+  }
+
+  .search:hover,
+  .categories a:hover {
+    color: tokens.$color-primary;
+  }
+
+  .searchField button:hover {
+    opacity: 0.72;
+  }
+}
+
+@include mixins.reduced-motion {
+  .header,
+  .logo,
+  .search,
+  .searchField,
+  .categories,
+  .categories ul,
+  .categories a,
+  .searchDisclosure,
+  .searchField button {
+    transition: none;
+  }
+}

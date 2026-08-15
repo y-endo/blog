@@ -1,0 +1,324 @@
+@use "../../styles/functions";
+@use "../../styles/mixins";
+@use "../../styles/tokens";
+
+.carousel {
+  --slide-width: 76%;
+  --slide-edge: 12%;
+  --slide-gap: #{tokens.$space-4};
+  --slide-gap-half: #{tokens.$space-2};
+  --nav-size: #{functions.rem(36)};
+  --nav-radius: #{functions.rem(18)};
+
+  position: relative;
+  overflow: hidden;
+  inline-size: 100%;
+  padding-block: tokens.$space-6 tokens.$space-12;
+
+  @include mixins.tablet {
+    --slide-width: 78%;
+    --slide-edge: 11%;
+    --slide-gap: #{functions.rem(56)};
+    --slide-gap-half: #{functions.rem(28)};
+  }
+
+  @include mixins.pc {
+    --slide-width: 68%;
+    --slide-edge: 16%;
+  }
+}
+
+.viewport {
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+}
+
+.isDragging {
+  cursor: grabbing;
+}
+
+.track {
+  display: flex;
+  align-items: stretch;
+  gap: var(--slide-gap);
+  padding: 0;
+  list-style: none;
+}
+
+.slide {
+  position: relative;
+  display: grid;
+  grid-template-areas:
+    "media"
+    "copy";
+  overflow: hidden;
+  flex: 0 0 var(--slide-width);
+  min-inline-size: 0;
+  border: 1px solid tokens.$color-border;
+  border-radius: tokens.$radius-card;
+  background: tokens.$color-background;
+
+  &:last-child {
+    margin-inline-end: var(--slide-gap);
+  }
+
+  @include mixins.tablet {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "copy media";
+    min-block-size: functions.rem(410);
+  }
+}
+
+.media {
+  grid-area: media;
+  overflow: hidden;
+  background: tokens.$color-surface-muted;
+  aspect-ratio: 16 / 10;
+
+  @include mixins.tablet {
+    min-block-size: functions.rem(410);
+    aspect-ratio: auto;
+  }
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+}
+
+.copy {
+  display: flex;
+  grid-area: copy;
+  flex-direction: column;
+  justify-content: center;
+  padding: tokens.$space-4;
+
+  @include mixins.tablet {
+    padding: tokens.$space-6 tokens.$space-8;
+  }
+
+  @include mixins.pc {
+    padding: tokens.$space-8 tokens.$space-10;
+  }
+
+  h2 {
+    margin-block-start: tokens.$space-4;
+    font-family: tokens.$font-family-serif;
+    font-size: functions.rem(20);
+    font-weight: 600;
+    line-height: 1.55;
+
+    @include mixins.tablet {
+      font-size: functions.rem(26);
+    }
+
+    @include mixins.pc {
+      font-size: functions.rem(28);
+    }
+  }
+
+  p {
+    margin-block-start: tokens.$space-3;
+    color: tokens.$color-text-muted;
+    font-size: functions.rem(14);
+
+    @include mixins.pc {
+      font-size: functions.rem(15);
+    }
+  }
+}
+
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: tokens.$space-2 tokens.$space-4;
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: functions.rem(28);
+  padding: functions.rem(4) functions.rem(8);
+  border-radius: 999px;
+  background: tokens.$color-accent;
+  font-size: functions.rem(12);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.date {
+  color: tokens.$color-text-muted;
+  font-size: functions.rem(12);
+}
+
+.titleLink {
+  text-decoration: none;
+  transition: color 180ms ease;
+
+  &::before {
+    position: absolute;
+    inset-block: 0 auto;
+    inset-inline-start: 0;
+    z-index: 1;
+    inline-size: 100%;
+    background: transparent;
+    content: "";
+    cursor: pointer;
+    aspect-ratio: 16 / 10;
+    transition: background-color 180ms ease;
+
+    @include mixins.tablet {
+      inset-block: 0;
+      inset-inline-start: 50%;
+      inline-size: 50%;
+      aspect-ratio: auto;
+    }
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: tokens.$space-1 tokens.$space-3;
+  margin-block-start: tokens.$space-5;
+  color: tokens.$color-text-muted;
+  font-size: functions.rem(12);
+  list-style: none;
+
+  a {
+    position: relative;
+    z-index: 2;
+    transition: color 180ms ease;
+  }
+}
+
+.previous,
+.next {
+  position: absolute;
+  inset-block-start: 50%;
+  display: none;
+  inline-size: var(--nav-size);
+  block-size: var(--nav-size);
+  border: 1px solid tokens.$color-text;
+  border-radius: 50%;
+  background: tokens.$color-text;
+  color: tokens.$color-background;
+  cursor: pointer;
+  place-items: center;
+  transform: translateY(-50%);
+  transition: opacity 180ms ease;
+
+  @include mixins.tablet {
+    display: grid;
+  }
+
+  svg {
+    inline-size: functions.rem(20);
+    block-size: functions.rem(20);
+  }
+}
+
+.previous {
+  inset-inline-start: calc(
+    var(--slide-edge) - var(--slide-gap-half) - var(--nav-radius)
+  );
+}
+
+.next {
+  inset-inline-end: calc(
+    var(--slide-edge) - var(--slide-gap-half) - var(--nav-radius)
+  );
+}
+
+.controls {
+  position: absolute;
+  inset-block-end: tokens.$space-2;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+}
+
+.dots {
+  display: flex;
+  gap: tokens.$space-2;
+
+  button {
+    inline-size: functions.rem(10);
+    block-size: functions.rem(10);
+    border: 1px solid tokens.$color-text;
+    border-radius: 50%;
+    padding: 0;
+    background: tokens.$color-background;
+    cursor: pointer;
+    transition: opacity 180ms ease;
+  }
+
+  button[aria-current="true"] {
+    background: tokens.$color-text;
+  }
+}
+
+.playback {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: calc(100% + #{tokens.$space-4});
+  display: grid;
+  inline-size: functions.rem(32);
+  block-size: functions.rem(32);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: tokens.$color-text;
+  cursor: pointer;
+  place-items: center;
+  transform: translateY(-50%);
+  transition: opacity 180ms ease;
+
+  svg {
+    inline-size: functions.rem(14);
+    block-size: functions.rem(14);
+    fill: currentcolor;
+    stroke: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .titleLink:hover,
+  .tags a:hover {
+    color: tokens.$color-primary;
+  }
+
+  .titleLink:hover::before {
+    background: rgb(255 255 255 / 12%);
+  }
+
+  .category:hover {
+    background: tokens.$color-primary;
+    color: tokens.$color-background;
+  }
+
+  .previous:hover,
+  .next:hover,
+  .dots button:hover,
+  .playback:hover {
+    opacity: 0.6;
+  }
+}
+
+@include mixins.reduced-motion {
+  .category,
+  .titleLink,
+  .titleLink::before,
+  .tags a,
+  .previous,
+  .next,
+  .dots button,
+  .playback {
+    transition: none;
+  }
+}

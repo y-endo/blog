@@ -1,0 +1,82 @@
+@use "../../styles/functions";
+@use "../../styles/mixins";
+@use "../../styles/tokens";
+
+.footer {
+  border-block-start: 1px solid tokens.$color-border;
+  background: tokens.$color-surface;
+}
+
+.inner {
+  inline-size: 100%;
+  padding: tokens.$space-12 tokens.$space-4 tokens.$space-6;
+
+  @include mixins.tablet {
+    padding-inline: tokens.$space-8;
+  }
+}
+
+.logo {
+  display: block;
+  inline-size: min(functions.rem(352), 72%);
+  text-decoration: none;
+  transition: opacity 180ms ease;
+
+  img {
+    inline-size: 100%;
+    block-size: auto;
+  }
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-6;
+  align-items: flex-start;
+  margin-block-start: tokens.$space-10;
+  padding-block-start: tokens.$space-6;
+  border-block-start: 1px solid tokens.$color-border;
+
+  @include mixins.tablet {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-3 tokens.$space-6;
+    list-style: none;
+  }
+
+  a,
+  small {
+    font-size: functions.rem(12);
+  }
+}
+
+.rail a {
+  transition: color 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logo:hover {
+    opacity: 0.72;
+  }
+
+  .rail a:hover {
+    color: tokens.$color-primary;
+  }
+}
+
+@include mixins.reduced-motion {
+  .logo,
+  .rail a {
+    transition: none;
+  }
+}
+
+.copyright {
+  color: tokens.$color-text-muted;
+}

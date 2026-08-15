@@ -12,8 +12,17 @@ body,
 h1,
 h2,
 h3,
-p {
+h4,
+p,
+ul,
+ol,
+figure {
   margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
 }
 
 img,

@@ -1,19 +1,39 @@
 @use "functions";
 
 $color-neutral-0: #fff;
-$color-neutral-950: #171717;
+$color-neutral-50: #f8f9fb;
+$color-neutral-100: #edf1f5;
+$color-neutral-300: #dce2e9;
+$color-neutral-600: #647085;
+$color-neutral-950: #17243a;
+$color-blue-700: #28577e;
+$color-blue-50: #e2ebf4;
+$color-focus: #005fcc;
 $color-background: $color-neutral-0;
 $color-text: $color-neutral-950;
-$font-family-sans:
-  system-ui,
-  -apple-system,
-  blinkmacsystemfont,
-  "Segoe UI",
-  sans-serif;
+$color-text-muted: $color-neutral-600;
+$color-surface: $color-neutral-50;
+$color-surface-muted: $color-neutral-100;
+$color-border: $color-neutral-300;
+$color-scrollbar-thumb: #bac2cd;
+$color-primary: $color-blue-700;
+$color-accent: $color-blue-50;
+$font-family-sans: var(--font-noto-sans-jp), sans-serif;
+$font-family-serif: var(--font-noto-serif-jp), serif;
 $font-size-body: functions.rem(16);
-$line-height-body: 1.7;
+$line-height-body: 1.8;
+$space-1: functions.rem(4);
+$space-2: functions.rem(8);
+$space-3: functions.rem(12);
 $space-4: functions.rem(16);
+$space-5: functions.rem(20);
 $space-6: functions.rem(24);
 $space-8: functions.rem(32);
+$space-10: functions.rem(40);
+$space-12: functions.rem(48);
+$space-16: functions.rem(64);
+$space-18: functions.rem(72);
+$radius-card: functions.rem(16);
+$shadow-card: 0 functions.rem(8) functions.rem(24) rgb(23 36 58 / 9%);
 $breakpoint-tablet: functions.rem(768);
 $breakpoint-pc: functions.rem(1024);

@@ -153,22 +153,38 @@
         }
 
         .site-categories ul {
+          --scrollbar-thumb: color-mix(
+            in srgb,
+            var(--line) 72%,
+            var(--ink-soft)
+          );
+          --scrollbar-track: var(--paper);
+
           display: flex;
           flex-wrap: wrap;
           justify-content: center;
-          gap: 0.25rem 2rem;
-          padding: 0.625rem 1rem;
+          inline-size: calc(100% - 2rem);
+          gap: 0.25rem 2.5rem;
+          margin-inline: auto;
+          padding-block: 0.625rem;
           list-style: none;
+          scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+          scrollbar-width: thin;
         }
 
         .site-categories a {
           font-size: 0.8125rem;
           font-weight: 700;
           text-decoration: none;
+          white-space: nowrap;
+        }
+
+        .site-categories li {
+          flex: 0 0 auto;
         }
 
         main {
-          padding-block-start: 2rem;
+          padding-block-start: 0;
         }
 
         .content-section {
@@ -179,27 +195,25 @@
 
         .section-heading {
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          gap: 1.5rem;
+          justify-items: center;
           margin-block-end: 1.75rem;
         }
 
         .section-title {
-          grid-column: 2;
           text-align: center;
           font-size: 1.75rem;
           line-height: 1.5;
         }
 
-        .section-heading .button-dark {
-          grid-column: 3;
-          justify-self: end;
+        .content-section > .button-dark {
+          display: flex;
+          inline-size: fit-content;
+          margin: 2.5rem auto 0;
         }
 
         .article-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(5, minmax(0, 1fr));
           gap: 1.25rem;
         }
 
@@ -209,9 +223,6 @@
         }
 
         .site-footer__inner {
-          display: grid;
-          grid-template-columns: 1.5fr repeat(3, 1fr);
-          gap: 2.5rem;
           inline-size: 100%;
           padding: 3.5rem 2rem 1.5rem;
         }
@@ -372,18 +383,18 @@
           position: relative;
           inline-size: 100%;
           overflow: hidden;
-          background: var(--paper-muted);
+          background: var(--canvas);
         }
 
         .hero-carousel__viewport {
           overflow: hidden;
-          padding-block: 1rem 3.25rem;
+          padding-block: 1.5rem 3.25rem;
         }
 
         .hero-carousel__track {
           display: flex;
           align-items: stretch;
-          gap: 1rem;
+          gap: 3.5rem;
           transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
           will-change: transform;
         }
@@ -393,14 +404,13 @@
         }
 
         .hero-slide {
-          flex: 0 0 72%;
+          flex: 0 0 68%;
           display: grid;
           grid-template-columns: 1.3fr 1fr;
           overflow: hidden;
           border: 0.0625rem solid var(--line);
           border-radius: 1rem;
           background: var(--canvas);
-          box-shadow: 0 0.5rem 1.5rem rgb(23 36 58 / 9%);
         }
 
         .hero-slide__media {
@@ -476,7 +486,7 @@
           inset: 0;
           z-index: 2;
           display: grid;
-          grid-template-columns: 1fr 72% 1fr;
+          grid-template-columns: 1fr 68% 1fr;
           align-items: center;
           pointer-events: none;
         }
@@ -499,6 +509,7 @@
           padding: 0;
           background: var(--canvas);
           cursor: pointer;
+          transition: opacity 180ms ease;
         }
 
         .hero-controls__dot[aria-current="true"] {
@@ -508,26 +519,27 @@
         .hero-controls__button {
           display: grid;
           place-items: center;
-          inline-size: 2.75rem;
-          block-size: 2.75rem;
-          border: 0.0625rem solid var(--line);
+          inline-size: 2.25rem;
+          block-size: 2.25rem;
+          border: 0.0625rem solid var(--ink);
           border-radius: 50%;
-          background: var(--canvas);
-          color: var(--ink);
+          background: var(--ink);
+          color: var(--canvas);
           cursor: pointer;
           pointer-events: auto;
+          transition: opacity 180ms ease;
         }
 
         .hero-controls__button[data-slide-previous] {
           grid-column: 1;
           justify-self: end;
-          transform: translateX(50%);
+          transform: translateX(calc(50% - 1.75rem));
         }
 
         .hero-controls__button[data-slide-next] {
           grid-column: 3;
           justify-self: start;
-          transform: translateX(-50%);
+          transform: translateX(calc(-50% + 1.75rem));
         }
 
         .hero-controls__button svg {
@@ -537,32 +549,43 @@
         }
 
         .topic-strip {
+          margin-block-start: 1.5rem;
           background: var(--yellow);
         }
 
         .topic-strip__inner {
+          --scrollbar-thumb: color-mix(
+            in srgb,
+            var(--line) 72%,
+            var(--ink-soft)
+          );
+          --scrollbar-track: var(--paper);
+
           display: flex;
-          flex-wrap: wrap;
+          overflow-x: auto;
+          flex-wrap: nowrap;
           align-items: center;
           gap: 0.25rem 1.5rem;
-          inline-size: 100%;
-          padding: 0.5rem 2rem;
+          inline-size: calc(100% - 4rem);
+          margin-inline: auto;
+          padding-block: 0.5rem 0.75rem;
+          scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+          scrollbar-width: thin;
         }
 
         .topic-strip strong,
         .topic-strip a {
+          flex: 0 0 auto;
           font-size: 0.75rem;
           font-weight: 700;
+          white-space: nowrap;
         }
 
         .article-card {
           display: flex;
           flex-direction: column;
-          border: 0.0625rem solid var(--line);
-          border-radius: 1rem;
-          overflow: hidden;
-          background: var(--paper);
-          box-shadow: 0 0.5rem 1.5rem rgb(23 36 58 / 9%);
+          border-block-end: 0.0625rem solid var(--line);
+          background: var(--canvas);
           color: inherit;
           text-decoration: none;
         }
@@ -570,7 +593,8 @@
         .article-card__media {
           position: relative;
           overflow: hidden;
-          aspect-ratio: 4 / 3;
+          border-radius: 0.75rem;
+          aspect-ratio: 16 / 10;
           background: var(--cyan);
         }
 
@@ -580,23 +604,31 @@
           object-fit: cover;
         }
 
-        .article-card__label {
-          position: absolute;
-          inset-inline-start: 0.75rem;
-          inset-block-end: 0.75rem;
-          padding: 0.3rem 0.6rem;
-          border-radius: 999px;
-          background: var(--yellow);
-          color: var(--ink);
-          font-size: 0.6875rem;
-          font-weight: 700;
-        }
-
         .article-card__body {
           display: flex;
           flex: 1;
           flex-direction: column;
-          padding: 1.125rem;
+          padding-block: 0.8125rem 1rem;
+        }
+
+        .article-card__date-line {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-block-start: 0.75rem;
+          color: var(--muted);
+        }
+
+        .article-card__date-line::after {
+          flex: 1;
+          block-size: 0.0625rem;
+          background: var(--line);
+          content: "";
+        }
+
+        .article-card__date {
+          font-size: 0.625rem;
+          line-height: 1;
         }
 
         .article-card__title {
@@ -610,41 +642,131 @@
           font-size: 0.8125rem;
         }
 
-        .article-card__date {
-          margin-block-start: auto;
-          padding-block-start: 1rem;
-          color: var(--muted);
+        .article-card__category {
+          align-self: flex-start;
+          margin-block-start: 1rem;
+          color: var(--vermilion);
           font-size: 0.6875rem;
-        }
-
-        .site-footer__name {
-          font-family: var(--font-serif);
-          font-size: 1.125rem;
           font-weight: 700;
         }
 
-        .site-footer__links {
-          display: grid;
-          gap: 0.5rem;
+        .article-card__tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25rem 0.5rem;
+          margin-block-start: 0.5rem;
+          color: var(--muted);
+          font-size: 0.625rem;
           list-style: none;
         }
 
-        .site-footer__heading {
-          margin-block-end: 0.75rem;
+        .article-search {
+          padding: 3.5rem 2rem;
+          background: var(--paper-muted);
+        }
+
+        .article-search__inner {
+          display: grid;
+          grid-template-columns: minmax(22rem, 0.65fr) minmax(0, 1.7fr);
+          gap: 1.5rem;
+          align-items: center;
+        }
+
+        .article-search__title {
           font-family: var(--font-serif);
-          font-size: 1rem;
+          font-size: 1.75rem;
           font-weight: 600;
         }
 
-        .site-footer__copyright {
-          grid-column: 1 / -1;
+        .article-search__copy {
+          margin-block-start: 0.75rem;
+          color: var(--ink);
+          font-size: 0.875rem;
+        }
+
+        .article-search__panel {
+          min-inline-size: 0;
+        }
+
+        .article-search__form {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          border: 0.0625rem solid var(--vermilion);
+          border-radius: 0.75rem;
+          background: var(--canvas);
+          transition:
+            border-color 180ms ease,
+            box-shadow 180ms ease;
+        }
+
+        .article-search__form:focus-within {
+          border-color: var(--focus);
+          box-shadow: 0 0 0 0.125rem var(--focus);
+        }
+
+        .article-search__form input {
+          min-inline-size: 0;
+          min-block-size: 3.5rem;
+          border: 0;
+          padding-inline: 1rem;
+          background: transparent;
+          color: var(--ink);
+          font: inherit;
+          outline: 0;
+        }
+
+        .article-search__form input::placeholder {
+          color: var(--vermilion);
+          opacity: 1;
+        }
+
+        .article-search__form button {
+          display: grid;
+          inline-size: 3.5rem;
+          block-size: 3.5rem;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          color: var(--ink);
+          cursor: pointer;
+          place-items: center;
+          transition: opacity 180ms ease;
+        }
+
+        .article-search__form svg {
+          inline-size: 1.25rem;
+          block-size: 1.25rem;
+        }
+
+        .site-footer__logo {
+          display: block;
+          inline-size: min(22rem, 72%);
+          block-size: auto;
+        }
+
+        .site-footer__rail {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1.5rem;
+          margin-block-start: 2.5rem;
           padding-block-start: 1.5rem;
           border-block-start: 0.0625rem solid var(--line);
-          text-align: end;
+        }
+
+        .site-footer__links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem 1.5rem;
+          list-style: none;
+        }
+
+        .site-footer__copyright {
+          color: var(--muted);
         }
 
         .site-footer__reference {
-          grid-column: 1 / -1;
+          margin-block-start: 1.5rem;
           color: var(--muted);
           font-size: 0.6875rem;
         }
@@ -660,8 +782,7 @@
 
         .about-section__inner {
           display: grid;
-          grid-template-columns: 1fr 2fr auto;
-          align-items: center;
+          justify-items: center;
           gap: 2rem;
           padding-block: 4rem;
         }
@@ -670,18 +791,57 @@
           font-family: var(--font-serif);
           font-size: 2rem;
           font-weight: 600;
+          text-align: center;
         }
 
         .about-section__copy {
-          color: var(--muted);
+          max-inline-size: 47.5rem;
+          color: var(--ink);
           font-size: 0.9375rem;
+          text-align: center;
+        }
+
+        .about-section__topics {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
+          inline-size: 100%;
+          max-inline-size: 47.5rem;
+          list-style: none;
+        }
+
+        .about-section__topics li {
+          display: grid;
+          gap: 0.25rem;
+          min-inline-size: 0;
+          text-align: center;
+        }
+
+        .about-section__topics strong {
+          font-family: var(--font-serif);
+          font-size: 1.125rem;
+          font-weight: 600;
+        }
+
+        .about-section__topics span {
+          color: var(--blue);
+          font-size: 0.75rem;
+        }
+
+        .about-section__link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.375rem;
+          font-size: 0.8125rem;
+          font-weight: 700;
+          text-underline-offset: 0.25rem;
         }
       }
 
       @layer responsive {
         @media (max-width: 63.9375rem) {
           .hero-slide {
-            flex-basis: 82%;
+            flex-basis: 78%;
           }
 
           .hero-slide__copy {
@@ -697,11 +857,7 @@
           }
 
           .hero-controls {
-            grid-template-columns: 1fr 82% 1fr;
-          }
-
-          .site-footer__inner {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 78% 1fr;
           }
         }
 
@@ -718,8 +874,12 @@
             display: none;
           }
 
-          main {
-            padding-block-start: 2rem;
+          .site-categories ul {
+            overflow: auto hidden;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            gap: 2rem;
+            overscroll-behavior-inline: contain;
           }
 
           .content-section {
@@ -727,8 +887,12 @@
           }
 
           .hero-slide {
-            flex-basis: 80%;
+            flex-basis: 76%;
             grid-template-columns: 1fr;
+          }
+
+          .hero-carousel__track {
+            gap: 1rem;
           }
 
           .hero-slide__media {
@@ -748,56 +912,66 @@
           }
 
           .hero-controls {
-            grid-template-columns: 1fr 80% 1fr;
+            grid-template-columns: 1fr 76% 1fr;
+          }
+
+          .hero-controls__button {
+            display: none;
           }
 
           .topic-strip__inner {
             gap: 0.25rem 1rem;
-            padding-inline: 1rem;
+            inline-size: calc(100% - 2rem);
           }
 
           .content-section {
             padding-block: 3.5rem;
           }
 
-          .section-heading {
-            grid-template-columns: 1fr;
-          }
-
           .section-title {
-            grid-column: 1;
             font-size: 1.5rem;
-          }
-
-          .section-heading .button-dark {
-            grid-column: 1;
-            justify-self: center;
           }
 
           .article-grid {
             grid-template-columns: 1fr;
           }
 
-          .about-section__inner,
-          .site-footer__inner {
+          .article-search {
+            padding-inline: 1rem;
+          }
+
+          .article-search__inner {
             grid-template-columns: 1fr;
+            gap: 1.25rem;
+          }
+
+          .article-search__title {
+            font-size: 1.5rem;
+          }
+
+          .article-search__form input {
+            padding-inline: 0.5rem 0;
+          }
+
+          .article-search__form button {
+            inline-size: 3rem;
           }
 
           .about-section__inner {
             inline-size: calc(100% - 2rem);
           }
 
+          .about-section__topics {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
           .site-footer__inner {
             padding-inline: 1rem;
           }
 
-          .site-footer__copyright {
-            grid-column: 1;
-            text-align: start;
-          }
-
-          .site-footer__reference {
-            grid-column: 1;
+          .site-footer__rail {
+            flex-direction: column;
+            align-items: flex-start;
           }
         }
 
@@ -808,6 +982,29 @@
 
           .hero-carousel__track {
             transition: none;
+          }
+
+          .hero-controls__button,
+          .hero-controls__dot,
+          .article-search__form,
+          .article-search__form button {
+            transition: none;
+          }
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+          a:hover {
+            text-decoration: none;
+          }
+
+          .hero-controls__button:hover,
+          .hero-controls__dot:hover,
+          .article-search__form button:hover {
+            opacity: 0.6;
+          }
+
+          .article-search__keywords a:hover {
+            color: var(--vermilion);
           }
         }
 
@@ -874,11 +1071,12 @@
       </div>
       <nav class="site-categories" aria-label="カテゴリー">
         <ul>
-          <li><a href="#latest">Next.js</a></li>
-          <li><a href="#latest">React</a></li>
-          <li><a href="#latest">SCSS</a></li>
+          <li><a href="#latest">Projects</a></li>
+          <li><a href="#latest">AI</a></li>
+          <li><a href="#latest">Frontend</a></li>
+          <li><a href="#latest">Backend &amp; Cloud</a></li>
           <li><a href="#ranking">Design</a></li>
-          <li><a href="#ranking">開発環境</a></li>
+          <li><a href="#ranking">Journal</a></li>
         </ul>
       </nav>
     </header>
@@ -1025,7 +1223,7 @@
                 <p class="hero-slide__summary">
                   記事、レイアウト、画像の責務を分けながら、小さく運用できる設計を考えます。
                 </p>
-                <p class="hero-slide__meta">2026.08.13　読了目安 8分</p>
+                <p class="hero-slide__meta">2026.08.13</p>
                 <a class="hero-slide__link" href="#">
                   記事を読む
                   <svg
@@ -1060,7 +1258,7 @@
                 <p class="hero-slide__summary">
                   表示と操作の責務を整理し、変更箇所を追いやすいコンポーネント設計を検証します。
                 </p>
-                <p class="hero-slide__meta">2026.08.09　読了目安 6分</p>
+                <p class="hero-slide__meta">2026.08.09</p>
                 <a class="hero-slide__link" href="#">
                   記事を読む
                   <svg
@@ -1095,7 +1293,7 @@
                 <p class="hero-slide__summary">
                   依存関係を見える形にして、ページが増えても崩れにくいSCSS構成へ移行します。
                 </p>
-                <p class="hero-slide__meta">2026.08.03　読了目安 7分</p>
+                <p class="hero-slide__meta">2026.08.03</p>
                 <a class="hero-slide__link" href="#">
                   記事を読む
                   <svg
@@ -1181,14 +1379,22 @@
         </div>
       </section>
 
-      <nav class="topic-strip" aria-label="注目カテゴリー">
+      <nav class="topic-strip" aria-label="記事タグ">
         <div class="topic-strip__inner">
           <strong>TOPICS</strong>
           <a href="#latest"># Next.js</a>
+          <a href="#latest"># Static Export</a>
+          <a href="#latest"># 設計</a>
           <a href="#latest"># React</a>
+          <a href="#latest"># 状態管理</a>
+          <a href="#latest"># コンポーネント</a>
           <a href="#latest"># SCSS</a>
+          <a href="#latest"># @use</a>
+          <a href="#latest"># CSS Modules</a>
+          <a href="#ranking"># デザイン</a>
+          <a href="#ranking"># 日本語</a>
           <a href="#ranking"># デザインレビュー</a>
-          <a href="#ranking"># 開発環境</a>
+          <a href="#ranking"># レスポンシブ</a>
         </div>
       </nav>
 
@@ -1199,7 +1405,6 @@
       >
         <div class="section-heading">
           <h2 class="section-title" id="latest-title">新着記事</h2>
-          <a class="button-dark" href="#latest">すべての記事を見る →</a>
         </div>
         <div class="article-grid">
           <a class="article-card" href="#">
@@ -1211,7 +1416,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">NEXT.JS</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-08-13"
+                >2026.08.13</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1220,9 +1429,12 @@
               <p class="article-card__summary">
                 静的出力を保ちながら、コンテンツの責務を分ける方法。
               </p>
-              <time class="article-card__date" datetime="2026-08-13"
-                >2026.08.13</time
-              >
+              <span class="article-card__category">Next.js</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#Next.js</li>
+                <li>#Static Export</li>
+                <li>#設計</li>
+              </ul>
             </div>
           </a>
 
@@ -1235,16 +1447,23 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">REACT</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-08-09"
+                >2026.08.09</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">状態を増やさずUIを組み立てる</h3>
               <p class="article-card__summary">
                 サーバーとクライアントの境界を、実装前に判断するための考え方。
               </p>
-              <time class="article-card__date" datetime="2026-08-09"
-                >2026.08.09</time
-              >
+              <span class="article-card__category">React</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#React</li>
+                <li>#設計</li>
+                <li>#状態管理</li>
+              </ul>
             </div>
           </a>
 
@@ -1257,7 +1476,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">SCSS</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-08-03"
+                >2026.08.03</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1266,9 +1489,12 @@
               <p class="article-card__summary">
                 依存関係を暗黙にせず、変更範囲を追いやすくするための整理。
               </p>
-              <time class="article-card__date" datetime="2026-08-03"
-                >2026.08.03</time
-              >
+              <span class="article-card__category">SCSS</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#SCSS</li>
+                <li>#@use</li>
+                <li>#命名規則</li>
+              </ul>
             </div>
           </a>
 
@@ -1281,7 +1507,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">DESIGN</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-07-30"
+                >2026.07.30</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1290,11 +1520,56 @@
               <p class="article-card__summary">
                 見出しと本文の関係を、実際の文章量から組み立てます。
               </p>
-              <time class="article-card__date" datetime="2026-07-30"
-                >2026.07.30</time
-              >
+              <span class="article-card__category">Design</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#デザイン</li>
+                <li>#日本語</li>
+                <li>#タイポグラフィ</li>
+              </ul>
             </div>
           </a>
+        </div>
+        <a class="button-dark" href="#latest">すべての記事を見る →</a>
+      </section>
+
+      <section class="article-search" aria-labelledby="article-search-title">
+        <div class="article-search__inner">
+          <div>
+            <h2 class="article-search__title" id="article-search-title">
+              気になる技術から探す
+            </h2>
+            <p class="article-search__copy">
+              記事名、概要、カテゴリー、タグから記事を探せます。
+            </p>
+          </div>
+          <search class="article-search__panel">
+            <form class="article-search__form" action="#" method="get">
+              <label class="visually-hidden" for="article-search-input"
+                >記事を検索</label
+              >
+              <input
+                id="article-search-input"
+                name="q"
+                type="search"
+                enterkeyhint="search"
+                placeholder="例: Next.js、SCSS、日本語"
+              />
+              <button type="submit" aria-label="記事を検索">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </svg>
+              </button>
+            </form>
+          </search>
         </div>
       </section>
 
@@ -1316,7 +1591,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">NEXT.JS</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-07-28"
+                >2026.07.28</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1325,9 +1604,12 @@
               <p class="article-card__summary">
                 ビルド時に完結させる範囲と、クライアントへ渡す責務を整理します。
               </p>
-              <time class="article-card__date" datetime="2026-07-28"
-                >2026.07.28</time
-              >
+              <span class="article-card__category">Next.js</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#Next.js</li>
+                <li>#Static Export</li>
+                <li>#ルーティング</li>
+              </ul>
             </div>
           </a>
 
@@ -1340,7 +1622,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">DESIGN</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-07-19"
+                >2026.07.19</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1349,9 +1635,12 @@
               <p class="article-card__summary">
                 不自然な途中改行を避けるために、実際の画面幅で確認する項目。
               </p>
-              <time class="article-card__date" datetime="2026-07-19"
-                >2026.07.19</time
-              >
+              <span class="article-card__category">Design</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#デザイン</li>
+                <li>#日本語</li>
+                <li>#モバイル</li>
+              </ul>
             </div>
           </a>
 
@@ -1364,7 +1653,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">SCSS</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-07-12"
+                >2026.07.12</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1373,9 +1666,12 @@
               <p class="article-card__summary">
                 所有するコンポーネントの近くへ置き、依存方向を単純に保つ方法。
               </p>
-              <time class="article-card__date" datetime="2026-07-12"
-                >2026.07.12</time
-              >
+              <span class="article-card__category">SCSS</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#SCSS</li>
+                <li>#CSS Modules</li>
+                <li>#設計</li>
+              </ul>
             </div>
           </a>
 
@@ -1388,7 +1684,11 @@
                 height="1086"
                 loading="lazy"
               />
-              <span class="article-card__label">REACT</span>
+            </div>
+            <div class="article-card__date-line">
+              <time class="article-card__date" datetime="2026-07-05"
+                >2026.07.05</time
+              >
             </div>
             <div class="article-card__body">
               <h3 class="article-card__title">
@@ -1397,9 +1697,12 @@
               <p class="article-card__summary">
                 再利用性と可読性が必要になった時点で分ける考え方。
               </p>
-              <time class="article-card__date" datetime="2026-07-05"
-                >2026.07.05</time
-              >
+              <span class="article-card__category">React</span>
+              <ul class="article-card__tags" aria-label="タグ">
+                <li>#React</li>
+                <li>#コンポーネント</li>
+                <li>#設計</li>
+              </ul>
             </div>
           </a>
         </div>
@@ -1409,44 +1712,42 @@
         <div class="about-section__inner">
           <h2 class="about-section__label" id="about-title">About</h2>
           <p class="about-section__copy">
-            フロントエンドの設計と実装について、試したことと判断の根拠を記録しています。Next.js、React、SCSSを中心に扱います。
+            Webフロントエンドエンジニアとして、実際に試した技術や調べたことを記録しています。最近はAIに関する話題が多めです。ときどき、技術から離れた日常のことも書きます。
           </p>
-          <a class="button-dark" href="#">プロフィールを見る</a>
+          <ul class="about-section__topics">
+            <li><strong>Projects</strong><span>Webサービスと制作記録</span></li>
+            <li><strong>AI</strong><span>AIを使った開発と検証</span></li>
+            <li><strong>Frontend</strong><span>設計、実装、検証</span></li>
+            <li>
+              <strong>Backend &amp; Cloud</strong
+              ><span>AWS、API、認証認可</span>
+            </li>
+            <li><strong>Design</strong><span>WebデザインとUI</span></li>
+            <li><strong>Journal</strong><span>食事、子育て、日常</span></li>
+          </ul>
+          <a class="about-section__link" href="#latest">記事を探す →</a>
         </div>
       </section>
     </main>
 
     <footer class="site-footer" id="footer">
       <div class="site-footer__inner">
-        <div>
-          <span class="site-footer__name">Blog</span>
+        <img
+          class="site-footer__logo"
+          src="../../public/brand/endo-journal.svg"
+          alt="ENDO JOURNAL"
+        />
+        <div class="site-footer__rail">
+          <nav aria-label="フッターナビゲーション">
+            <ul class="site-footer__links">
+              <li><a href="#latest">新着記事</a></li>
+              <li><a href="#ranking">人気記事</a></li>
+              <li><a href="#latest">検索</a></li>
+              <li><a href="#about">About</a></li>
+            </ul>
+          </nav>
+          <small class="site-footer__copyright">© 2026 ENDO JOURNAL</small>
         </div>
-        <nav aria-label="フッターカテゴリー">
-          <h2 class="site-footer__heading">カテゴリー</h2>
-          <ul class="site-footer__links">
-            <li><a href="#latest">Next.js</a></li>
-            <li><a href="#latest">React</a></li>
-            <li><a href="#latest">SCSS</a></li>
-            <li><a href="#ranking">Design</a></li>
-          </ul>
-        </nav>
-        <nav aria-label="アーカイブ">
-          <h2 class="site-footer__heading">アーカイブ</h2>
-          <ul class="site-footer__links">
-            <li><a href="#latest">新着記事</a></li>
-            <li><a href="#ranking">よく読まれている記事</a></li>
-            <li><a href="#">すべての記事</a></li>
-          </ul>
-        </nav>
-        <nav aria-label="著者と外部リンク">
-          <h2 class="site-footer__heading">著者・リンク</h2>
-          <ul class="site-footer__links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">GitHub</a></li>
-          </ul>
-        </nav>
-        <small class="site-footer__copyright">© 2026 Blog</small>
         <p class="site-footer__reference">
           対象:
           トップページ、ヘッダー、Hero、記事カード、操作、About、フッター、レスポンシブ状態。

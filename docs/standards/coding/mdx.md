@@ -4,15 +4,24 @@
 
 - 記事ファイルは`content/posts`配下へ置きます。
 - ファイル名には小文字の英数字とハイフンを使用します。
-- 記事から読み込む画像は、記事単位で所在を追跡できる場所へ置きます。
+- メイン画像は`public/images/posts/<記事slug>/hero.webp`へ置きます。
+- メイン画像は4:3、1440×1080pxのWebPを基準とします。
+- 下書きではメイン画像を省略できますが、公開記事では必須です。
+- 記事から読み込むその他の画像は、記事単位で所在を追跡できる場所へ置きます。
 
 ## Frontmatter
 
-- 記事には`title`、`description`、`publishedAt`、`tags`、`draft`を定義します。
+- 記事には`title`、`description`、`publishedAt`、`category`、`tags`、`draft`、`imageAlt`を定義します。
+- メイン画像のパスは記事slugから生成するため、`image`は定義しません。
+- `category`は`Projects`、`AI`、`Frontend`、`Backend & Cloud`、`Design`、`Journal`のいずれか一つを指定します。
+- Next.jsやAWSなどの個別技術と、「作ってみた」「備忘録」などの記事形式は`tags`で表します。
 - 更新日が公開日と異なる場合は`updatedAt`を定義します。
 - 日付には`YYYY-MM-DD`形式を使用します。
-- Frontmatterはビルド時にスキーマ検証し、不正な記事がある場合はビルドを失敗させます。
+- Frontmatterはビルド時に検証し、必須項目の不足、未知または重複した項目、不正な値がある場合はビルドを失敗させます。
+- メイン画像が存在しない場合はビルドを失敗させます。
 - `draft: true`の記事を本番出力へ含めません。
+- 開発サーバーでは`/posts/<記事slug>/`から下書きをプレビューできます。
+- Heroには公開日の新しい記事から最大3件を表示します。
 
 ## 本文
 
