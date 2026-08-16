@@ -1,0 +1,44 @@
+@use "../styles/functions";
+@use "../styles/tokens";
+
+.point {
+  margin-block: tokens.$space-10;
+  border-inline-start: 3px solid tokens.$color-primary;
+  padding: tokens.$space-5 tokens.$space-6;
+  background: tokens.$color-accent;
+}
+
+.label {
+  display: block;
+  margin-block-end: tokens.$space-2;
+  color: tokens.$color-primary;
+  font-size: functions.rem(12);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.title {
+  display: block;
+  font-family: tokens.$font-family-serif;
+  font-size: functions.rem(17);
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.content {
+  margin-block-start: functions.rem(10);
+
+  > p {
+    margin: 0;
+    font-size: functions.rem(15);
+    line-height: 1.9;
+
+    & + p {
+      margin-block-start: tokens.$space-4;
+    }
+  }
+
+  > :last-child {
+    margin-block-end: 0;
+  }
+}

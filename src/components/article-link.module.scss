@@ -1,5 +1,5 @@
-@use "./styles/functions";
-@use "./styles/mixins";
+@use "../styles/functions";
+@use "../styles/mixins";
 
 .externalLink {
   &:focus-visible .externalIcon {

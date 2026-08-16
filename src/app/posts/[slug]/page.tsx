@@ -6,6 +6,7 @@ import type { MDXContent } from "mdx/types";
 
 import { ArticleTableOfContents } from "@/app/posts/[slug]/_components/article-table-of-contents";
 import { formatPublishedAt, postImageSize } from "@/lib/post";
+import type { Post } from "@/lib/post";
 import { postModules } from "@/lib/post-modules";
 import { getPost, getPostTableOfContents, postSlugs } from "@/lib/posts";
 import { getAbsoluteUrl, openGraphImage, siteName } from "@/lib/site";
@@ -18,6 +19,21 @@ type PostPageProps = Readonly<{
 
 function isMdxContent(value: unknown): value is MDXContent {
   return typeof value === "function";
+}
+
+function getPostMetadataImage(post: Post) {
+  if (!post.image) {
+    return {
+      ...openGraphImage,
+      url: getAbsoluteUrl(openGraphImage.url),
+    };
+  }
+
+  return {
+    alt: post.imageAlt,
+    ...postImageSize,
+    url: getAbsoluteUrl(post.image),
+  };
 }
 
 export function generateStaticParams() {
@@ -33,6 +49,7 @@ export async function generateMetadata({
   if (!post) return {};
 
   const canonicalPath = `/posts/${post.slug}/`;
+  const metadataImage = getPostMetadataImage(post);
 
   return {
     alternates: {
@@ -41,7 +58,7 @@ export async function generateMetadata({
     description: post.description,
     openGraph: {
       description: post.description,
-      images: [openGraphImage],
+      images: [metadataImage],
       locale: "ja_JP",
       modifiedTime: post.updatedAt ?? post.publishedAt,
       publishedTime: post.publishedAt,
@@ -55,7 +72,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       description: post.description,
-      images: [openGraphImage],
+      images: [metadataImage],
       title: post.title,
     },
   };
@@ -78,6 +95,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const tableOfContents = getPostTableOfContents(slug);
   const canonicalUrl = getAbsoluteUrl(`/posts/${post.slug}/`);
   const categoryPath = `/search/?q=${encodeURIComponent(post.category)}`;
+  const metadataImage = getPostMetadataImage(post);
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -86,7 +104,7 @@ export default async function PostPage({ params }: PostPageProps) {
       datePublished: post.publishedAt,
       description: post.description,
       headline: post.title,
-      image: getAbsoluteUrl(openGraphImage.url),
+      image: metadataImage.url,
       inLanguage: "ja-JP",
       keywords: post.tags.join(", "),
       mainEntityOfPage: {

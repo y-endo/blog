@@ -5,7 +5,7 @@ import { HeroCarousel } from "@/app/_components/hero-carousel";
 import { ArticleCard } from "@/components/article-card";
 import { categories } from "@/lib/categories";
 import type { Category } from "@/lib/categories";
-import { heroPosts, latestPosts, postTags } from "@/lib/posts";
+import { heroPosts, latestPosts, popularPosts, postTags } from "@/lib/posts";
 
 import styles from "./page.module.scss";
 
@@ -83,6 +83,18 @@ export default function HomePage() {
           </search>
         </div>
       </section>
+      {popularPosts.length > 0 ? (
+        <section className={styles.section} id="popular">
+          <div className={styles.heading}>
+            <h2>よく読まれている記事</h2>
+          </div>
+          <div className={styles.grid}>
+            {popularPosts.map((post) => (
+              <ArticleCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </section>
+      ) : null}
       <section className={styles.about} id="about">
         <div className={styles.aboutInner}>
           <h2>About</h2>

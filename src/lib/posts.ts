@@ -88,7 +88,7 @@ function readPost(fileName: string): PostSource {
   const allowedFields = new Set<string>([...requiredFields, "updatedAt"]);
   const fields: Record<string, string> = {};
 
-  for (const line of match[1].split("\n")) {
+  for (const line of match[1].replace(/\n {2,}/g, " ").split("\n")) {
     const separator = line.indexOf(":");
     if (separator < 1) {
       throw new Error(`${fileName}: Frontmatterが不正です。`);
@@ -185,6 +185,9 @@ export const postTags = [...new Set(posts.flatMap(({ tags }) => tags))];
 
 export const heroPosts = posts.slice(0, 3);
 export const latestPosts = posts.slice(0, 5);
+export const popularPosts = ["building-blog-with-ai", "building-portfolio"]
+  .map((slug) => posts.find((post) => post.slug === slug))
+  .filter((post) => post !== undefined);
 
 function getPostSource(slug: string) {
   const source = postSources.find(({ post }) => post.slug === slug);

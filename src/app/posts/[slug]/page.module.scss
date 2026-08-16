@@ -201,6 +201,53 @@
     }
   }
 
+  ul:has(> li > input[type="checkbox"]) {
+    padding-inline-start: 0;
+    list-style: none;
+  }
+
+  li:has(> input[type="checkbox"]) {
+    display: flex;
+    align-items: flex-start;
+    gap: tokens.$space-2;
+
+    input {
+      flex: 0 0 auto;
+      margin-block-start: functions.rem(7);
+      accent-color: tokens.$color-primary;
+    }
+  }
+
+  table {
+    inline-size: 100%;
+    margin-block: tokens.$space-8;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: functions.rem(14);
+    line-height: 1.7;
+  }
+
+  th,
+  td {
+    padding: tokens.$space-3;
+    border-block-end: 1px solid tokens.$color-border;
+    text-align: start;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  th {
+    border-block-start: 1px solid tokens.$color-border;
+    background: tokens.$color-surface;
+    font-weight: 700;
+  }
+
+  hr {
+    margin-block: tokens.$space-12;
+    border: 0;
+    border-block-start: 1px solid tokens.$color-border;
+  }
+
   blockquote {
     margin: tokens.$space-8 0;
     border-inline-start: 3px solid tokens.$color-primary;

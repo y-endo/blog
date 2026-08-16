@@ -1,0 +1,241 @@
+---
+title: MDX記事作成リファレンス
+description: ENDO JOURNALで記事を書くときに使えるMDX記法と、記事用コンポーネントの表示を確認するための下書きです。
+publishedAt: 2026-08-16
+tags: [MDX, 記事作成, リファレンス]
+draft: true
+category: Frontend
+imageAlt: MDXの記事記法をまとめたリファレンス
+---
+
+この記事は、新しい記事を書くときにコピーして使えるMDX記法の見本です。
+`draft: true`のため、本番ビルドには含まれません。
+
+<ArticleSummary
+  items={[
+    {
+      label: "用途",
+      value: "記事作成時の記法確認",
+    },
+    {
+      label: "公開状態",
+      value: "下書き",
+    },
+    {
+      label: "内部リンク",
+      value: "サイトトップ",
+      href: "/",
+    },
+    {
+      label: "外部リンク",
+      value: "MDX公式サイト",
+      href: "https://mdxjs.com/",
+    },
+  ]}
+/>
+
+## Frontmatter
+
+記事のタイトルや公開日などは、ファイルの先頭にFrontmatterとして記述します。
+公開記事では、記事のslugと同じ名前のディレクトリへ`hero.webp`を配置します。
+
+```yaml
+---
+title: 記事タイトル
+description: 記事一覧や検索結果に表示する説明文です。
+publishedAt: 2026-08-16
+updatedAt: 2026-08-17
+tags: [Next.js, MDX, 備忘録]
+draft: true
+category: Frontend
+imageAlt: 記事のメイン画像の内容を表す説明
+---
+```
+
+`updatedAt`は、公開日と更新日が異なる場合だけ指定します。
+カテゴリーには`Projects`、`AI`、`Frontend`、`Backend & Cloud`、`Design`、`Journal`のいずれかを指定します。
+
+## 見出しと文章
+
+ページのタイトルがH1になるため、本文はH2から始めます。
+H2の中を分ける場合はH3を使い、見出しレベルを飛ばしません。
+
+### H3の見出し
+
+段落は空行で分けます。
+同じ段落内で改行したい場合は、行末に`<br />`を記述します。<br />
+通常は強制改行を増やさず、段落を分ける方法を優先します。
+
+## 文字の装飾
+
+文章の一部を**太字**、_斜体_、~~取り消し線~~で表示できます。
+ファイル名や変数名など、短いコードは`generateStaticParams()`のように記述します。
+
+```mdx
+**太字**
+_斜体_
+~~取り消し線~~
+`インラインコード`
+```
+
+## リンク
+
+[サイトトップへ戻る](/)のような内部リンクと、[MDX公式サイト](https://mdxjs.com/)のような外部リンクを記述できます。
+外部リンクは自動的に別タブで開き、別窓アイコンが付きます。
+
+```mdx
+[サイトトップへ戻る](/)
+[MDX公式サイト](https://mdxjs.com/)
+```
+
+リンクテキストには「こちら」だけを使わず、リンク先の内容が分かる名前を付けます。
+
+## リスト
+
+### 箇条書き
+
+- Next.jsでページを生成する
+- MDXで記事を書く
+- SCSSで見た目を整える
+
+### 番号付きリスト
+
+1. 記事ファイルを作成する
+2. Frontmatterを記述する
+3. 開発サーバーで表示を確認する
+
+### チェックリスト
+
+- [x] タイトルと説明文を記述した
+- [x] 見出しレベルを確認した
+- [ ] メイン画像を用意した
+- [ ] `draft: false`へ変更した
+
+## テーブル
+
+項目の比較や設定値の一覧にはテーブルを使用できます。
+
+| 項目     |  必須  | 記述例                  |
+| :------- | :----: | :---------------------- |
+| タイトル |  はい  | `title: 記事タイトル`   |
+| 更新日   | いいえ | `updatedAt: 2026-08-17` |
+| 下書き   |  はい  | `draft: true`           |
+
+```mdx
+| 項目     |  必須  | 記述例                  |
+| :------- | :----: | :---------------------- |
+| タイトル |  はい  | `title: 記事タイトル`   |
+| 更新日   | いいえ | `updatedAt: 2026-08-17` |
+```
+
+## 引用
+
+ほかの文章を引用するときは、引用元へのリンクを近くに記載します。
+
+> 引用する文章は、このように引用ブロックで表示します。
+>
+> 複数の段落も一つの引用としてまとめられます。
+
+出典：[引用元のページ名](https://example.com/)
+
+## コードブロック
+
+コードフェンスの直後へ言語名を指定すると、その言語に合わせてシンタックスハイライトが適用されます。
+
+```tsx
+type GreetingProps = Readonly<{
+  name: string;
+}>;
+
+export function Greeting({ name }: GreetingProps) {
+  return <p>こんにちは、{name}さん。</p>;
+}
+```
+
+```scss
+@use "../styles/functions";
+@use "../styles/tokens";
+
+.sample {
+  padding: tokens.$space-4;
+  font-size: functions.rem(16);
+}
+```
+
+```sh
+mise exec -- pnpm check
+mise exec -- pnpm build
+```
+
+## 記事概要
+
+`ArticleSummary`は、記事の冒頭で公開サイトや使用技術などを整理するときに使います。
+項目へ`href`を指定すると、その値がリンクになります。
+
+```mdx
+<ArticleSummary
+  items={[
+    {
+      label: "公開サイト",
+      value: "endoyuki.jp",
+      href: "https://endoyuki.jp",
+    },
+    {
+      label: "使用技術",
+      value: "Astro、TypeScript、SCSS、Three.js",
+    },
+  ]}
+/>
+```
+
+## POINT
+
+本文の中で、判断や工夫を短く強調したい場合は`ArticlePoint`を使います。
+
+<ArticlePoint title="POINTには結論を短く書きます">
+
+本文には、その判断をした理由や、読者へ補足したい内容を記述します。
+一つの記事で使いすぎず、特に伝えたい箇所へ絞ります。
+
+</ArticlePoint>
+
+```mdx
+<ArticlePoint title="POINTには結論を短く書きます">
+
+本文には、その判断をした理由や、読者へ補足したい内容を記述します。
+
+</ArticlePoint>
+```
+
+## キャプション付き画像
+
+本文中の画像は記事slugのディレクトリへ置き、MDXの先頭で読み込みます。
+白背景の画像へ境界線を付けたい場合は`hasBorder`を指定します。
+
+```mdx
+import articleImage from "../../public/images/posts/article-slug/image01.webp";
+
+<ArticleImage
+  src={articleImage}
+  alt="画像に写っている内容の説明"
+  caption="画像の補足説明や出典"
+  hasBorder
+/>
+```
+
+装飾目的の画像を増やさず、本文の理解を助ける画像にだけ使用します。
+
+---
+
+## 公開前の確認
+
+記事を書き終えたら、次の項目を確認します。
+
+- Frontmatterの必須項目が揃っている
+- H2とH3の順番が崩れていない
+- リンクテキストだけでリンク先が分かる
+- 画像に内容を表す代替テキストがある
+- コードブロックに正しい言語名を指定している
+- 4:3、1440×1080pxを基準にメイン画像を用意した
+- `draft: false`へ変更した
+- `mise exec -- pnpm check`と`mise exec -- pnpm build`が通る
