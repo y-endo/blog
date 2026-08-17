@@ -59,7 +59,7 @@ function SearchPostsContent({ initialQuery, posts }: SearchPostsContentProps) {
             type="search"
             value={query}
             enterKeyHint="search"
-            placeholder="例: Next.js、SCSS、デザイン"
+            placeholder="例： Next.js、AI、AWS"
             onChange={(event) => setQuery(event.target.value)}
           />
           <button type="submit" aria-label="記事を検索">

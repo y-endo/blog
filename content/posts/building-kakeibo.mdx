@@ -1,0 +1,273 @@
+---
+title: 妻と使う共有家計簿をOpenAI APIのOCR機能付きで作りました。
+description: 妻と家計を共有するために、レシート画像や明細PDFをOpenAI APIで読み取れる家計簿を作りました。
+publishedAt: 2026-08-17
+tags: [OpenAI API, OCR, Codex, React, AWS, 家計簿]
+draft: false
+category: Projects
+imageAlt: レシートを読み取る共有家計簿アプリのイメージ
+---
+
+import image01 from "../../public/images/posts/building-kakeibo/image01.webp";
+import image02 from "../../public/images/posts/building-kakeibo/image02.webp";
+import image03 from "../../public/images/posts/building-kakeibo/image03.webp";
+
+## 妻と使う共有家計簿を作りました
+
+妻と家計を共有するために、二人で使う家計簿Webアプリを作りました。<br />
+一般公開はしておらず、リポジトリも非公開です。<br />
+完全に自分たち専用のアプリとして運用しています。
+
+<ArticleImage
+  src={image01}
+  alt="共有家計簿アプリのトップ画面"
+  caption="共有家計簿アプリのトップ画面"
+/>
+
+既存の家計簿サービスを比較して選ぶ方法もありましたが、AIエージェントを使えば自分たちに必要な機能だけを備えたものを簡単に作れそうだったので、自分で作ることにしました。<br />
+二人分の収入と支出を一緒に確認でき、どちらかが相手の明細を代理で登録できるようにしています。
+
+## 入力の面倒さをOCRで減らしました
+
+<ArticleImage
+  src={image02}
+  alt="共有家計簿アプリのOCR機能画面"
+  caption="共有家計簿アプリのOCR機能画面"
+/>
+
+家計簿は、画面を作るだけならそれほど難しくありません。<br />
+続けるうえで面倒なのは、レシートを見ながら日付、店舗名、金額、カテゴリを毎回入力することです。
+
+そこで、レシート画像をアップロードすると登録候補が作られるOCR機能を最初から入れました。<br />
+日付や合計金額だけではなく、商品名、商品ごとの金額、支払方法、カテゴリの候補まで抽出します。
+
+ここで使っているのは、専用のOCR APIではありません。<br />
+OpenAI APIへ画像と指示を送り、画像入力に対応したモデルに家計簿用のデータを返してもらっています。
+
+返却形式には[OpenAI APIのStructured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)を使いました。<br />
+日付や金額などの返却形式をZodのスキーマで定義し、そのままアプリで扱える構造にしています。
+
+## OCRはResponses APIで実装しました
+
+このOCRでは、役割の異なる二つのAPIが登場します。
+
+- **共有家計簿API**：このアプリのために自分で用意したバックエンドAPI。Amazon API Gatewayでリクエストを受け付け、AWS Lambdaが処理する
+- **OpenAI API**：画像やPDFから家計簿の登録候補を抽出する外部API
+
+レシートを選んだ直後にブラウザーが共有家計簿APIを呼び出します。<br />
+共有家計簿APIが、Amazon S3へアップロードするための**署名付きURL**を発行します。
+
+署名付きURLは、指定したファイルを決められた保存先へアップロードする権限を一時的に与えるURLです。<br />
+このURLを使うことで、S3自体を一般公開せずに、ブラウザーからファイルを直接保存できます。
+
+処理の流れは次のとおりです。
+
+1. ブラウザーが共有家計簿APIの`POST /v1/receipts/upload-url`を呼び出す
+2. 共有家計簿APIがS3の署名付きURL、ファイルの保存先、アップロードIDを返す
+3. ブラウザーが署名付きURLを使い、レシート画像またはPDFをS3へ直接アップロードする
+4. ブラウザーが共有家計簿APIの`POST /v1/receipts/{uploadId}/ocr`を呼び出す
+5. LambdaがS3からファイルを取得し、抽出ルールと一緒にOpenAI Responses APIへ送る
+6. OpenAI APIから返った登録候補をブラウザーの補正画面へ表示する
+
+画像を共有家計簿APIへ送ってからS3へ転送する形にしなかったのは、大きなファイルをAPI GatewayとLambdaへ通さないためです。<br />
+ブラウザーからS3へ直接アップロードすれば、共有家計簿APIは一時的なアップロード権限を発行するだけで済みます。
+
+OpenAI APIを呼び出すのは、S3からファイルを取得したLambdaです。<br />
+OpenAI APIのキーはLambdaの環境変数へ保存し、ブラウザーへは渡していません。
+
+作成時点のモデルには[gpt-5.4-mini](https://developers.openai.com/api/docs/models/gpt-5.4-mini)を使っています。
+
+以下は、ファイルの種類に応じてOpenAI APIの入力を作るコードの抜粋です。
+
+```ts
+function createSourceInput(
+  receipt: ReceiptObject,
+  sourceKind: OcrSourceKind,
+  imageDetail: "low" | "high" | "auto" | "original",
+) {
+  if (sourceKind !== "receipt" || isPdfContentType(receipt.contentType)) {
+    return {
+      detail:
+        imageDetail === "original" || imageDetail === "auto"
+          ? "high"
+          : imageDetail,
+      file_data: toDataUrl(receipt, "application/pdf"),
+      filename: receipt.fileName || getFallbackPdfFileName(sourceKind),
+      type: "input_file" as const,
+    };
+  }
+
+  return {
+    detail: imageDetail,
+    image_url: toDataUrl(
+      receipt,
+      normalizeImageContentType(receipt.contentType),
+    ),
+    type: "input_image" as const,
+  };
+}
+```
+
+S3から取得したファイルはBase64へ変換し、Data URLとしてResponses APIへ渡しています。<br />
+画像とPDFで処理を分けていますが、その後の抽出処理は共通です。
+
+```ts
+async extractCandidate(
+  receipt: ReceiptObject,
+  categories: ReceiptOcrCategory[],
+  sourceKind: OcrSourceKind,
+): Promise<OcrCandidate> {
+  const response = await this.client.responses.parse({
+    input: [
+      {
+        content: [
+          {
+            text: createUserPrompt(sourceKind, categories),
+            type: "input_text",
+          },
+          createSourceInput(receipt, sourceKind, this.config.openAiOcrImageDetail),
+        ],
+        role: "user",
+      },
+    ],
+    instructions: createInstructions(sourceKind),
+    model: this.config.openAiOcrModel,
+    text: {
+      format: zodTextFormat(ocrCandidateSchema, "receipt_ocr_candidate"),
+    },
+  });
+
+  const candidate = response.output_parsed;
+  if (!candidate) {
+    throw new HttpError(502, "OCR_FAILED", "OCR結果を構造化できませんでした。");
+  }
+
+  return candidate;
+}
+```
+
+`createInstructions()`は、レシート、給与明細、支出明細で別の指示を返します。<br />
+`createUserPrompt()`には、家計簿へ登録済みのカテゴリIDとカテゴリ名も含めています。
+
+Responses APIから返されるデータを定義するZodスキーマは、次のようにしました。
+
+```ts
+const ocrLineItemSchema = z.object({
+  amount: z.number().int().nonnegative().nullable(),
+  categoryId: z.string().min(1).nullable(),
+  name: z.string().min(1),
+});
+
+const ocrCandidateSchema = z.object({
+  amount: z.number().int().positive().nullable(),
+  confidence: z.enum(["low", "medium", "high"]),
+  counterparty: z.string().min(1).nullable(),
+  date: z.iso.date().nullable(),
+  lineItems: z.array(ocrLineItemSchema),
+  paymentMethodId: paymentMethodIdSchema.nullable(),
+  taxAmount: z.number().int().nonnegative().nullable(),
+  warnings: z.array(z.string()),
+});
+```
+
+これにより、返却データを日付、金額、商品行などを定義したスキーマに揃え、`output_parsed`から型付きの登録候補を受け取れます。<br />
+ただし、Structured Outputsで指定できるのはデータの形式です。<br />
+レシートの内容を正しく読み取れたかどうかは別なので、受け取った候補をそのまま保存しない設計にしています。
+
+## OCR結果はそのまま保存しません
+
+レシートを読み取れたとしても、その結果が必ず正しいとは限りません。<br />
+印字が薄いレシートや長い商品名では読み間違いが起こり、値引きやポイントの行が商品として混ざることもあります。
+
+そのため、OCR結果は家計簿へ直接保存せず、必ず補正画面を挟むようにしました。<br />
+日付、店舗名、支払方法、商品名、金額、カテゴリを確認し、不要な行を外してから登録できます。
+
+OpenAI APIには、現在使っているカテゴリの候補も一緒に渡しています。<br />
+モデルが自由なカテゴリ名を作るのではなく、登録済みのカテゴリIDか未選択だけを返す形です。
+
+OpenAI APIに判断を任せる範囲と、人が確認する範囲を最初から分けたことで、読み間違いをそのまま家計簿へ保存するリスクを減らせます。
+
+## 一枚のレシートを一件で登録するのをやめました
+
+最初の実装では、レシートの合計金額を一件の支出として登録していました。<br />
+しかし、実際のレシートには食料品、菓子、洗剤などが一緒に並びます。<br />
+レシート全体を食費にすると、カテゴリ別の集計が雑になります。
+
+そこで、商品行ごとにカテゴリを補正し、同じカテゴリの商品だけをまとめて登録できるように変更しました。<br />
+たとえば一枚のレシートから、食費、嗜好品、日用品の三件を作れます。<br />
+細かく残したい場合は、商品ごとの登録も選べます。
+
+この変更で補正画面は少し複雑になりましたが、後から見る集計はかなり自然になりました。<br />
+OCRの精度だけを上げるより、間違っていても短時間で直せる画面を作るほうが、家計簿では使いやすいと感じています。
+
+## 読み取った元画像も残しています
+
+初期設計では、レシート画像はOCRが終わったら削除する予定でした。<br />
+元画像を残さず、家計簿には読み取った結果だけを残す考えです。
+
+しかし、後から明細を見返したときに元のレシートがなければ、金額やカテゴリを確認できません。<br />
+特に一枚のレシートから複数の明細を作るようになり、何を根拠に登録したのかを残す必要が出てきました。
+
+現在はOCRに使ったファイルをS3へ保存し、明細の詳細画面から確認できるようにしています。<br />
+ファイル自体は公開せず、ログイン済みの利用者にだけ有効期限付きのURLを発行します。
+
+## レシート以外のPDFにも対応しました
+
+レシート画像の次に、給与明細とカードの利用明細などのPDFも読み取れるようにしました。<br />
+給与明細は収入、カード明細は支出として、同じ補正画面から登録できます。
+
+ただし、三種類のファイルを同じ指示で読み取っているわけではありません。<br />
+レシートでは商品行、給与明細では差引支給額、カード明細では利用日と利用店を優先するなど、ファイルの種類ごとに抽出ルールを分けています。
+
+## CSVインポート機能も追加しました
+
+<ArticleImage
+  src={image03}
+  alt="共有家計簿アプリのCSVインポート機能画面"
+  caption="共有家計簿アプリのCSVインポート機能画面"
+/>
+
+レシートやPDFに加えて、よく使う決済サービスの取引履歴もまとめて登録できるようにしました。<br />
+現在は、PayPayの取引履歴CSVとVisa（Vpass）の利用明細CSVを読み込めます。
+
+CSVを選ぶと、日付、取引先、金額、カテゴリ、支払方法を一覧で確認できます。<br />
+読み取った内容はそのまま保存せず、不要な行を外したり、カテゴリや取引先名を直したりしてから一括登録する流れです。<br />
+すでに登録している可能性がある明細も、登録前に警告します。
+
+一度補正した内容は、取引先ごとの補正ルールとしてS3へ保存し、次回のCSV読み込み時に推定値として反映します。<br />
+この推定ではOpenAI APIを呼び出さず、過去に自分たちで直した内容だけを使っています。
+
+## 小さく運用するためにDBを使いませんでした
+
+このアプリを使うのは基本的に二人だけなので、大規模な構成は必要ありません。<br />
+WebはReactとViteで作ったSPAをS3とCloudFrontから配信し、APIにはAmazon API GatewayとAWS Lambda、認証にはAmazon Cognitoを使っています。
+
+家計簿のデータはDBを使わず、月ごとに分けたJSONとしてS3へ保存しています。<br />
+同時に更新したときはETagで競合を検出し、古いデータによる上書きを防ぎます。<br />
+S3 Versioningも有効にしているため、誤って更新した場合は過去の状態へ戻せます。
+
+運用コストは月額300円程度を目標に設計しました。<br />
+利用者が増えたりデータ量が大きくなったりすれば見直しが必要ですが、家族だけで使う現在の条件には十分です。
+
+## 実装はCodexに任せました
+
+実装はCodexへ任せています。<br />
+最初に目的、必要な機能、運用コストを伝え、技術選定と設計をADRとして残してから実装を進めました。
+
+最初の開発環境を作ったのが2026年6月22日で、Web版のMVPを本番へ出したのが6月28日です。<br />
+約一週間で、ログイン、手入力、OCR登録、明細の閲覧、カテゴリ管理まで使える状態になりました。
+
+もちろん、一度作って終わりではありません。<br />
+実際のレシートを想定して商品行ごとの補正を追加したり、元画像を残す設計へ変更したりと、使い方に合わせて何度も修正しています。
+
+Codexに任せると実装は速く進みますが、家庭内でどのように記録したいのかまでは決めてくれません。<br />
+「このレシートは一件でよいのか」「読み取り結果をどこまで信用するのか」といった判断は、画面を使う側で決める必要がありました。
+
+## 二人だけが使うアプリだから作れました
+
+一般公開するサービスであれば、もっと多くの入力パターン、権限、問い合わせ対応、データ移行を考える必要があります。<br />
+今回は使う人が決まっているため、自分たちに必要なところだけを丁寧に作れました。
+
+OpenAI APIを使ったOCRは、家計簿への入力を完全になくすものではありません。<br />
+それでも、レシートを見ながら一項目ずつ打つ作業を、候補を確認して直す作業へ変えられます。<br />
+この差だけでも、共有家計簿へ組み込んだ価値はありました。

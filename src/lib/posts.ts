@@ -185,7 +185,11 @@ export const postTags = [...new Set(posts.flatMap(({ tags }) => tags))];
 
 export const heroPosts = posts.slice(0, 3);
 export const latestPosts = posts.slice(0, 5);
-export const popularPosts = ["building-blog-with-ai", "building-portfolio"]
+export const popularPosts = [
+  "building-blog-with-ai",
+  "building-portfolio",
+  "building-kakeibo",
+]
   .map((slug) => posts.find((post) => post.slug === slug))
   .filter((post) => post !== undefined);
 

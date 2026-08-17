@@ -74,7 +74,7 @@ export default function HomePage() {
                 name="q"
                 type="search"
                 enterKeyHint="search"
-                placeholder="例: Next.js、SCSS、日本語"
+                placeholder="例： Next.js、AI、AWS"
               />
               <button type="submit" aria-label="記事を検索">
                 <Search aria-hidden="true" />
