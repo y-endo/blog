@@ -1,0 +1,266 @@
+---
+title: Azure Blob Storageの静的サイト公開とApplication Insights計測を検証
+description: Azure初心者がBlob StorageとStorage Explorerで静的サイトを公開し、Application Insightsでページビューとクリックイベントを確認するまでの記録です。
+publishedAt: 2026-09-05
+tags: [Azure, Blob Storage, Storage Explorer, Application Insights, 静的サイト]
+draft: false
+category: Backend & Cloud
+imageAlt: Azure Blob Storage、公開した静的サイト、Application Insightsを3つの画面で確認する様子
+---
+
+import image01 from "../../public/images/posts/azure-blob-static-site-application-insights/image01.webp";
+
+Azureの学習として、静的サイトを公開し、アクセスを計測するところまで試しました。<br />
+Azureアカウントは持っていましたが、各サービスの役割や料金体系はほとんど知らない状態から始めています。
+
+今回使ったのは、Azure Blob Storage、Azure Storage Explorer、Application Insights、Log Analytics Workspaceです。
+
+<ArticleSummary
+  items={[
+    {
+      label: "公開方法",
+      value: "Azure Blob Storageの静的Webサイト",
+    },
+    {
+      label: "アップロード",
+      value: "Azure Storage Explorer",
+    },
+    {
+      label: "アクセス計測",
+      value: "Application Insightsでページビューとクリックを計測",
+    },
+    {
+      label: "ログ保存先",
+      value: "Log Analytics Workspace",
+    },
+  ]}
+/>
+
+## 最初に料金を確認
+
+久しぶりにAzureへログインすると、無料クレジットの有効期限が切れていました。<br />
+リソースの作成を続けるには従量課金制への切り替えが必要だったため、先に今回の構成で発生する料金を調べました。
+
+当初は、Blob Storageの前段にAzure Front Doorを置く構成を考えていました。<br />
+しかし、Azure Front Door Standardには使用時間に応じた基本料金があり、今回の小さな学習サイトには必要ありません。<br />
+そのため、Front Doorは使わず、Blob Storageが発行する静的Webサイト用のURLから直接公開することにしました。
+
+Blob Storageの静的Webサイト機能を有効にすること自体は無料ですが、保存容量、操作回数、データ転送量に応じた料金は発生します。<br />
+Application Insightsの計測データが保存されるLog Analyticsの従量課金プランでは、請求アカウントあたり最初の5GBまでのデータ取り込みが毎月無料です。
+
+従量課金制には、任意の金額で利用を強制停止する支出上限がありません。<br />
+そこで、Azure Cost Managementで月間予算を設定し、一定割合に到達したときにメールを受け取るようにしました。<br />
+予算通知はリソースを停止せず、コスト情報の反映にも時間がかかるため、課金を完全に防ぐ仕組みではありません。
+
+## 今回の構成
+
+```text
+ブラウザー
+├── Blob StorageからHTMLを取得
+└── Application Insights JavaScript SDKから計測データを送信
+      └── Log Analytics Workspaceへ保存
+```
+
+**リソースグループ**は、関連するAzureリソースをまとめて管理するための単位です。<br />
+学習後にまとめて削除できるように、今回作るリソースはすべて`rg-static-blog-learning`へ配置しました。
+
+## Blob Storageで静的Webサイトを公開
+
+最初に、東日本リージョンへStorage Accountを作成しました。<br />
+小さな検証サイトなので、パフォーマンスは`Standard`、冗長性は同一リージョン内で複製する`LRS`を選んでいます。
+
+作成後、Storage Accountの「静的なWebサイト」を有効にし、次のファイル名を設定しました。
+
+| 項目                     | ファイル名   |
+| :----------------------- | :----------- |
+| インデックスドキュメント | `index.html` |
+| エラードキュメントのパス | `404.html`   |
+
+設定を保存すると、静的サイト用の`$web`コンテナーとプライマリエンドポイントが作成されました。<br />
+`$web`へ置いたファイルは、プライマリエンドポイントからインターネットへ公開されます。
+
+## Storage Explorerからファイルをアップロード
+
+ファイルのアップロードには、macOS版のAzure Storage Explorerを使いました。<br />
+Azureアカウントでサインインし、対象のサブスクリプションからStorage Accountと`$web`を開きます。
+
+最初は、次の2ファイルだけをアップロードしました。
+
+```text
+$web/
+├── index.html
+└── 404.html
+```
+
+アップロード後にプライマリエンドポイントをブラウザーで開くと、`index.html`が表示されました。<br />
+これで、Blob Storageから静的サイトを公開できていることを確認しました。
+
+### 親フォルダーの中身だけを一括アップロードできない
+
+ローカルに次のような構成のファイルがあるとします。<br />
+この構成を`$web`直下へ一度にアップロードしたかったのですが、今回使ったStorage Explorerの操作では実現できませんでした。
+
+```text
+site/
+├── index.html
+├── 404.html
+└── hoge/
+    ├── index.html
+    └── fuga/
+        └── index.html
+```
+
+今回使ったStorage Explorerで「Upload Folder」から`site`を選ぶと、`site`の中身だけではなく、フォルダー名も含めてアップロードされました。
+
+```text
+$web/site/index.html
+```
+
+期待していた配置は`$web/index.html`です。<br />
+Storage Explorerだけで配置する場合は、ルートの2ファイルに「Upload Files」、`hoge`に「Upload Folder」を使い、分けてアップロードします。
+
+```text
+$web/
+├── index.html
+├── 404.html
+└── hoge/
+    ├── index.html
+    └── fuga/
+        └── index.html
+```
+
+複数階層のフォルダーの中身を一度に転送する場合は、コマンドラインツールのAzCopyを利用できます。<br />
+今回はStorage Explorerによる手動アップロードを試すことが目的だったため、AzCopyでの転送は今後の課題としました。
+
+## Application Insightsを設定
+
+静的サイトを公開しただけでは、Application Insightsへページビューは送信されません。<br />
+ブラウザーで動作するApplication Insights JavaScript SDKをHTMLへ追加する必要があります。
+
+その前に、計測データの保存先となるLog Analytics Workspaceを`rg-static-blog-learning`へ作成しました。<br />
+Application Insightsに自動作成を任せず、既存のリソースグループへ明示的に作ったのは、学習後にまとめて削除しやすくするためです。
+
+Log Analytics Workspaceには`0.1GB/日`の日次上限を設定しました。<br />
+日次上限は想定外のデータ増加に備えるための設定ですが、上限へ到達した瞬間に正確に収集が止まるわけではありません。
+
+次に、ワークスペースベースのApplication Insightsを作成し、先ほどのLog Analytics Workspaceへ接続しました。<br />
+Application Insights側にも同じ日次上限を設定しました。
+
+## JavaScript SDKでページビューを送信
+
+Application Insightsの接続文字列を取得し、Microsoft公式ドキュメントに掲載されているJavaScript SDKのローダースクリプトを`index.html`へ追加しました。<br />
+接続文字列はブラウザーへ配信されるコードに含まれることを前提とした値であり、Storage Accountのアクセスキーとは役割が異なります。
+
+更新した`index.html`をStorage Explorerから上書きアップロードし、プライマリエンドポイントを数回開きました。<br />
+数分後、Application Insightsの検索画面で`Page View`を選ぶと、ページタイトルとURLを含む計測データを確認できました。
+
+これで、Blob StorageからHTMLを取得し、ブラウザーからApplication Insightsへページビューを送るところまで動作しました。
+
+## クリックとカスタムイベントを計測
+
+ページビューに続いて、ボタン操作の計測も試しました。<br />
+今回は、クリックを自動収集するClick Analytics Pluginと、JavaScriptから任意のイベントを送る`trackEvent`を同じページへ実装しています。
+
+Click Analytics Pluginは、ボタンやリンクのクリックを自動でApplication Insightsへ送る拡張機能です。<br />
+使用していたJavaScript SDKがバージョン3だったため、同じメジャーバージョンのプラグインをローダースクリプトより前に読み込みました。
+
+```html
+<script src="https://js.monitor.azure.com/scripts/b/ext/ai.clck.3.gbl.min.js"></script>
+```
+
+次に、プラグインのインスタンスを作り、既存のローダースクリプトにある`cfg`へ設定を追加しました。<br />
+ローダースクリプト全体は長いため、変更した部分だけを示します。
+
+```js
+const clickPlugin = new Microsoft.ApplicationInsights.ClickAnalyticsPlugin();
+
+// 既存のローダースクリプトにあるcfgの抜粋
+cfg: {
+  connectionString: "Application Insightsの接続文字列",
+  extensions: [clickPlugin],
+  extensionConfig: {
+    [clickPlugin.identifier]: {
+      autoCapture: true,
+      urlCollectQuery: false,
+      urlCollectHash: false,
+      dataTags: {
+        useDefaultContentNameOrId: true,
+      },
+    },
+  },
+}
+```
+
+自動収集するボタンには`data-id`を付けました。<br />
+この値が、Application Insightsで確認するイベント名になります。
+
+```html
+<button type="button" data-id="plugin_test_clicked">
+  自動クリックイベントを送信
+</button>
+```
+
+`trackEvent`は、開発者がイベント名と追加情報を指定して送信するためのメソッドです。<br />
+今回は別のボタンへクリック用のイベントリスナーを設定し、`manual_test_clicked`というイベントを送信しました。
+
+```html
+<button id="manual-event-button" type="button" data-ai-dnt="true">
+  カスタムイベントを送信
+</button>
+
+<script>
+  document
+    .querySelector("#manual-event-button")
+    .addEventListener("click", function () {
+      window.appInsights.trackEvent({
+        name: "manual_test_clicked",
+        properties: {
+          page_path: window.location.pathname,
+          source: "learning_page",
+        },
+      });
+    });
+</script>
+```
+
+Click Analytics Pluginと`trackEvent`を同じボタンで併用すると、1回の操作で2件のイベントが送られます。<br />
+今回は手動計測用のボタンに`data-ai-dnt="true"`を付け、プラグインによる自動収集から除外しました。
+
+更新した`index.html`をStorage Explorerから上書きアップロードし、2つのボタンをそれぞれクリックしました。<br />
+Application Insightsの検索画面で、`plugin_test_clicked`と`manual_test_clicked`の両方を確認できました。
+
+<ArticleImage
+  src={image01}
+  alt="Application Insightsのエンドツーエンドトランザクション詳細にplugin_test_clickedとmanual_test_clickedが並ぶ画面"
+  caption="Application Insightsで確認したplugin_test_clickedとmanual_test_clicked"
+  hasBorder
+/>
+
+この検証では、クエリ文字列とURLのハッシュを収集しない設定にしました。<br />
+実際のサイトへ導入する場合も、氏名、メールアドレス、入力内容などをイベント名やプロパティへ含めないようにします。
+
+## 検証で分かったこと
+
+今回の検証で分かったことは以下の通りでした。
+
+- Front Doorを使わなくても、Blob Storageの静的Webサイト用URLからHTTPSで公開できる
+- Storage Explorerの「Upload Folder」では、選択した親フォルダー名がアップロード先のパスへ含まれる
+- Application Insights JavaScript SDKを追加したHTMLでは、ブラウザーからページビューを送信できる
+- Click Analytics Pluginは、`data-id`を付けた要素のクリックを自動収集できる
+- `trackEvent`では、イベント名と任意のプロパティをJavaScriptから送信できる
+- 自動収集と手動計測を併用する場合は、同じ操作の二重計測を避ける必要がある
+- Application Insightsのデータは、接続したLog Analytics Workspaceへ保存される
+- Azureの予算通知は支出を知らせる機能であり、リソースを自動停止する上限ではない
+
+## 参考資料
+
+- [Azure Storageで静的Webサイトをホストする](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website-how-to)
+- [Azure Storage ExplorerでBlobを管理する](https://learn.microsoft.com/en-us/azure/storage/storage-explorer/vs-azure-tools-storage-explorer-blobs)
+- [Application Insights JavaScript SDKを設定する](https://learn.microsoft.com/en-us/azure/azure-monitor/app/javascript-sdk)
+- [Application InsightsのClick Analytics Pluginを設定する](https://learn.microsoft.com/en-us/azure/azure-monitor/app/javascript-feature-extensions)
+- [Application Insightsで使用状況を分析する](https://learn.microsoft.com/en-us/azure/azure-monitor/app/usage)
+- [Application Insightsリソースを作成する](https://learn.microsoft.com/en-us/azure/azure-monitor/app/create-workspace-resource)
+- [Log Analytics Workspaceの日次上限を設定する](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/daily-cap)
+- [Azure Cost Managementで予算を作成する](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets)
+- [Azure Front Doorの料金](https://azure.microsoft.com/en-us/pricing/details/frontdoor/)
+- [Azure Monitorの料金](https://azure.microsoft.com/en-us/pricing/details/monitor/)
