@@ -2,10 +2,12 @@ import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 
 import { HeroCarousel } from "@/app/_components/hero-carousel";
+import { getPopularPosts } from "@/app/_lib/popular-posts";
 import { ArticleCard } from "@/components/article-card";
 import { categories } from "@/lib/categories";
 import type { Category } from "@/lib/categories";
-import { heroPosts, latestPosts, popularPosts, postTags } from "@/lib/posts";
+import { heroPosts, latestPosts, posts, postTags } from "@/lib/posts";
+import { siteUrl } from "@/lib/site";
 
 import styles from "./page.module.scss";
 
@@ -18,7 +20,9 @@ const categoryDescriptions: Readonly<Record<Category, string>> = {
   Journal: "食事、子育て、日常",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const popularPosts = await getPopularPosts(posts, siteUrl.hostname);
+
   return (
     <main id="main-content" tabIndex={-1}>
       <h1 className={styles.visuallyHidden}>
