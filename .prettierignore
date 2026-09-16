@@ -1,4 +1,5 @@
 .agents/
+accessibility-test-*/
 .claude/settings.local.json
 .next/
 node_modules/

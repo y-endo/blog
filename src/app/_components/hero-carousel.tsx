@@ -118,8 +118,16 @@ export function HeroCarousel({ posts }: HeroCarouselProps) {
     resetAutoplay();
   };
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key === "ArrowLeft") showPrevious();
-    if (event.key === "ArrowRight") showNext();
+    if (!(event.target instanceof HTMLButtonElement)) return;
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      showPrevious();
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      showNext();
+    }
   };
   const handlePlayback = () => {
     if (isPlaying) {

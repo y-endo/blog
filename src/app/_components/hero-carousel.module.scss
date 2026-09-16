@@ -248,17 +248,27 @@
   gap: tokens.$space-2;
 
   button {
-    inline-size: functions.rem(10);
-    block-size: functions.rem(10);
-    border: 1px solid tokens.$color-text;
-    border-radius: 50%;
+    display: grid;
+    inline-size: functions.rem(24);
+    block-size: functions.rem(24);
+    border: 0;
     padding: 0;
-    background: tokens.$color-background;
+    background: transparent;
     cursor: pointer;
+    place-items: center;
     transition: opacity 180ms ease;
+
+    &::before {
+      inline-size: functions.rem(10);
+      block-size: functions.rem(10);
+      border: 1px solid tokens.$color-text;
+      border-radius: 50%;
+      background: tokens.$color-background;
+      content: "";
+    }
   }
 
-  button[aria-current="true"] {
+  button[aria-current="true"]::before {
     background: tokens.$color-text;
   }
 }

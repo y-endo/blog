@@ -3,7 +3,16 @@ import type { NextConfig } from "next";
 
 const withMDX = createMDX({
   options: {
-    rehypePlugins: ["rehype-slug", ["@shikijs/rehype", { theme: "min-light" }]],
+    rehypePlugins: [
+      "rehype-slug",
+      [
+        "@shikijs/rehype",
+        {
+          theme: "min-light",
+          colorReplacements: { "#c2c3c5": "var(--color-text-muted)" },
+        },
+      ],
+    ],
     remarkPlugins: ["remark-frontmatter", "remark-gfm"],
   },
 });
