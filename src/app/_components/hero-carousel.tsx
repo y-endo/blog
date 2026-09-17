@@ -25,8 +25,9 @@ export function HeroCarousel({ posts }: HeroCarouselProps) {
       Autoplay({
         active: posts.length > 1,
         delay: 6000,
+        playOnInit: false,
         stopOnFocusIn: true,
-        stopOnInteraction: false,
+        stopOnInteraction: true,
       }),
     [posts.length],
   );
@@ -66,6 +67,27 @@ export function HeroCarousel({ posts }: HeroCarouselProps) {
       carouselApi.off("pointerUp", handlePointerUp);
     };
   }, [carouselApi]);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const syncAutoplay = () => {
+      if (isPlaying) autoplay.play(reducedMotionRef.current);
+      else autoplay.stop();
+    };
+    const container = carouselApi.containerNode();
+
+    syncAutoplay();
+    carouselApi.on("pointerUp", syncAutoplay);
+    carouselApi.on("reInit", syncAutoplay);
+    container.addEventListener("focusout", syncAutoplay);
+
+    return () => {
+      carouselApi.off("pointerUp", syncAutoplay);
+      carouselApi.off("reInit", syncAutoplay);
+      container.removeEventListener("focusout", syncAutoplay);
+    };
+  }, [autoplay, carouselApi, isPlaying]);
 
   useEffect(() => {
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -130,13 +152,7 @@ export function HeroCarousel({ posts }: HeroCarouselProps) {
     }
   };
   const handlePlayback = () => {
-    if (isPlaying) {
-      autoplay.stop();
-      setIsPlaying(false);
-    } else {
-      autoplay.play(reducedMotionRef.current);
-      setIsPlaying(true);
-    }
+    setIsPlaying((playing) => !playing);
   };
 
   return (

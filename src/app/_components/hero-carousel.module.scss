@@ -49,6 +49,7 @@
 .slide {
   position: relative;
   display: grid;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
     "media"
     "copy";
@@ -64,9 +65,12 @@
   }
 
   @include mixins.tablet {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas: "copy media";
+    grid-template: "copy media" auto / 1fr 1fr;
     min-block-size: functions.rem(410);
+  }
+
+  @include mixins.pc {
+    min-block-size: functions.rem(350);
   }
 }
 
@@ -81,6 +85,10 @@
     aspect-ratio: auto;
   }
 
+  @include mixins.pc {
+    min-block-size: functions.rem(350);
+  }
+
   img {
     inline-size: 100%;
     block-size: 100%;
@@ -92,15 +100,16 @@
   display: flex;
   grid-area: copy;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   padding: tokens.$space-4;
 
   @include mixins.tablet {
+    justify-content: center;
     padding: tokens.$space-6 tokens.$space-8;
   }
 
   @include mixins.pc {
-    padding: tokens.$space-8 tokens.$space-10;
+    padding: tokens.$space-4 tokens.$space-6;
   }
 
   h2 {
@@ -120,9 +129,14 @@
   }
 
   p {
+    display: none;
     margin-block-start: tokens.$space-3;
     color: tokens.$color-text-muted;
     font-size: functions.rem(14);
+
+    @include mixins.tablet {
+      display: block;
+    }
 
     @include mixins.pc {
       font-size: functions.rem(15);
