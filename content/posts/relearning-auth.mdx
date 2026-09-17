@@ -1,0 +1,488 @@
+---
+title: 認証と認可を学び直す。OAuth、OIDC、JWT、PKCEの役割を整理する
+description: 認証と認可を改めて学び、OAuth、OIDC、JWT、認可コードフローとPKCEの関係を整理しました。疑問を調べて分かったことや、JavaScriptでPKCEの生成と照合を検証したコードを紹介します。
+publishedAt: 2026-09-17
+tags: [認証, 認可, OAuth, OIDC, JWT, PKCE, Microsoft Entra ID, MSAL, 学習記録]
+draft: false
+category: Frontend
+imageAlt: パソコンの利用者が認証基盤からトークンを受け取り、APIとデータをやり取りするイメージ
+---
+
+import oauthImage from "../../public/images/posts/relearning-auth/oauth.webp";
+import oidcImage from "../../public/images/posts/relearning-auth/oidc.webp";
+import jwtImage from "../../public/images/posts/relearning-auth/jwt.webp";
+import pkceImage from "../../public/images/posts/relearning-auth/pkce.webp";
+
+認証と認可について、改めて勉強しました。<br />
+OAuth、OIDC、JWT、PKCEといった用語は知っていても、それぞれが何を担当し、ログインからAPI利用までのどこで使われるのか、説明しようとすると曖昧な部分がありました。
+
+今回は、それぞれの役割と処理の流れを調べ、PKCEの生成と照合をJavaScriptで検証しました。<br />
+学ぶ途中で疑問に思ったことと、調べて分かったことを、コードや図と一緒に紹介します。
+
+説明の中心は、ブラウザーで動くSPA（Single Page Application）から、Microsoft Entra IDなどの認証基盤を利用する構成です。<br />
+SPAは、JavaScriptで画面を更新しながら操作するWebアプリです。
+
+## 認証と認可は、それぞれ何を確認するのか
+
+ログインできたユーザーでも、すべての操作を許可されるわけではありません。<br />
+たとえば、記事管理アプリに一般ユーザーとしてログインできても、他人の記事を削除してよいとは限りません。
+
+この二つの判断を分けるのが、<strong>認証（Authentication）</strong>と<strong>認可（Authorization）</strong>です。
+
+| 処理 | 確認すること             | 記事管理アプリの例                          |
+| ---- | ------------------------ | ------------------------------------------- |
+| 認証 | 利用者が誰であるか       | ユーザーAとしてログインしたことを確認する   |
+| 認可 | その操作を許可してよいか | ユーザーAがこの記事を削除してよいか判断する |
+
+画面で削除ボタンを隠しても、APIを直接呼び出すことはできます。<br />
+そのため、API側でもリクエストごとに権限を確認します。<br />
+管理者や一般ユーザーといった役割（ロール）だけでなく、「この記事の作成者か」「この記事は削除可能な状態か」といった条件も認可の判断に使います。<br />
+[OWASPの認可ガイド](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)でも、サーバー側での権限確認と、リクエストごとの検証が求められています。
+
+## Cookie、Session、JWTは同じ種類のものではない
+
+私が混同していたのは、Cookie、Session、JWTの関係です。<br />
+どれもログイン後の説明に登場するため、「サーバーから返すデータの形式が違うだけなのか」と思っていました。
+
+まず、HTTPのリクエストには、直前のリクエストでログインしたという状態が自動的に引き継がれるわけではありません。<br />
+次のリクエストでも利用者を判断できるように、セッションIDやトークンを送ります。
+
+| 用語    | 役割                                                                                         |
+| ------- | -------------------------------------------------------------------------------------------- |
+| Cookie  | ブラウザーに値を保存し、条件に合うリクエストへ自動的に付ける仕組み                           |
+| Session | 複数のリクエストにまたがる利用者の状態。ここではサーバー側で管理するログインセッションを指す |
+| JWT     | ユーザーの識別子や有効期限などの情報を表すトークンのデータ形式                               |
+
+サーバー側でログイン状態を管理する構成では、ブラウザーにランダムなセッションIDをCookieで渡します。<br />
+以後、サーバーは送られてきたIDに対応するセッションを参照し、利用者を判断します。
+
+```text
+ブラウザー：CookieにセッションIDを持つ
+    ↓ リクエストにCookieを付ける
+サーバー：セッションIDからログイン状態を参照する
+```
+
+CookieにJWTを入れる構成もあります。<br />
+つまり、Cookieは保存と送信、Sessionは状態管理、JWTはデータ形式の話です。<br />
+Cookieに何を入れ、その値を使ってサーバーが何を確認するのかまで分けると、構成を理解しやすくなりました。<br />
+[OWASPのセッション管理ガイド](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)にも、Cookieを使ってセッションIDを受け渡す仕組みが説明されています。
+
+## OAuthはAPIへのアクセス権をアプリに渡す仕組み
+
+自分のアプリで、Microsoftのアカウントにひも付く情報を利用したいとします。<br />
+そのためにMicrosoftのパスワードをアプリへ入力してもらうと、アプリがパスワードを扱う責任まで持つことになります。
+
+**OAuth 2.0**を使うと、ユーザーがサービス側でログインし、アプリには限定的なアクセス権を渡せます。<br />
+アプリはその権限を表すアクセストークンを取得し、APIへ提示します。<br />
+[OAuth 2.0の仕様](https://datatracker.ietf.org/doc/html/rfc6749#section-1)では、このような限定的なアクセスを実現するための枠組みが定義されています。
+
+<ArticleImage
+  src={oauthImage}
+  alt="OAuthの役割を示す図。ユーザーはサービス側でログインと許可を行い、アプリはパスワードの代わりにアクセストークンを受け取ってAPIを利用する。"
+  caption="OAuth 2.0の役割の整理。図版はChatGPTで生成。"
+/>
+
+### 登場人物とscope
+
+Entra IDを使い、SPAからMicrosoft Graph APIを呼ぶ構成なら、次の対応になります。<br />
+Microsoft Graph APIは、Microsoftのサービスが持つユーザー情報などにアクセスするためのAPIです。
+
+| 役割             | 今回の例                                         |
+| ---------------- | ------------------------------------------------ |
+| リソース所有者   | Microsoftアカウントを使うユーザー                |
+| クライアント     | ユーザーが利用するSPA                            |
+| 認可サーバー     | Microsoft Entra IDの認可とトークン発行を担う部分 |
+| リソースサーバー | Microsoft Graph API                              |
+
+アプリが要求するアクセス範囲を表すのが、<strong>scope（スコープ）</strong>です。<br />
+たとえば、Microsoft Graphの`User.Read`は、サインインしたユーザーのプロフィールを読み取るための権限です。<br />
+[Microsoft Graphのユーザー取得API](https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0)では、`/me`の利用に必要な権限として確認できます。
+
+ただし、要求したscopeでアクセスが許可されても、アプリ内のすべての操作ができるわけではありません。<br />
+独自APIなら、scopeの確認に加えて、対象データの所有者なども必要に応じて判断します。
+
+## OIDCはアプリにユーザーの認証結果を伝える
+
+OAuthを調べていて気になったのが、「途中でユーザーがログインするなら、それで認証もできているのではないか」という点です。
+
+サービス側でユーザーを認証することと、その認証結果をクライアントアプリへ伝えることは分けて考えます。<br />
+OAuth単体では、アプリがその結果を受け取ってユーザーを確認するための標準的な方法まで定義されていません。
+
+そこを補うのが、<strong>OpenID Connect（OIDC）</strong>です。<br />
+OAuth 2.0の上に認証の仕組みを加え、アプリがユーザーの認証結果を確認できるようにします。<br />
+認可リクエストに`openid`というscopeを含めることで、OIDCの認証を要求します。<br />
+[OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html#Overview)に、この関係が定義されています。
+
+<ArticleImage
+  src={oidcImage}
+  alt="OIDCの役割を示す図。OpenID Providerがユーザーを認証し、アプリへIDトークンを返す。アプリは必要に応じてアクセストークンでUserInfoを利用する。"
+  caption="OAuth 2.0を基礎に、認証結果を伝えるOIDC。図版はChatGPTで生成。"
+/>
+
+ユーザーの本人確認を担う認証基盤は、<strong>IdP（Identity Provider）</strong>と呼ばれます。<br />
+OIDCでは、認証を提供する側をOpenID Providerと呼びます。<br />
+Entra IDは、ユーザーの認証とOAuthのトークン発行の両方を担います。
+
+図の右側にあるUserInfoは、ユーザー情報を取得するためのAPIの窓口（エンドポイント）です。<br />
+利用する場合はアプリから呼び出しますが、毎回必ず呼ぶものではありません。<br />
+アプリは、受け取ったIDトークンを検証して認証結果を確認します。
+
+### IDトークン、アクセストークン、リフレッシュトークン
+
+トークンは、用途によって受け手が変わります。
+
+| トークン             | 用途                                     | 主な受け手                           |
+| -------------------- | ---------------------------------------- | ------------------------------------ |
+| IDトークン           | ユーザーの認証結果をクライアントへ伝える | クライアントアプリ                   |
+| アクセストークン     | 対象APIへのアクセスに使う                | リソースサーバー                     |
+| リフレッシュトークン | 新しいアクセストークンの取得に使う       | 認可サーバーのトークンエンドポイント |
+
+アプリがIDトークンを受け取ったからといって、それをAPI用のアクセストークンの代わりにはしません。<br />
+APIへ送るのは、そのAPI向けに発行されたアクセストークンです。
+
+リフレッシュトークンは、すべての応答に必ず含まれるわけではありません。<br />
+発行条件はサービスや設定によって異なり、Entra IDの認可コードフローでは`offline_access`の要求が必要です。<br />
+[Microsoftのトークン応答の説明](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow)で確認できます。
+
+## JWTはトークンの形式で、内容を読むだけでは検証にならない
+
+OAuthやOIDCが処理のルールを定めるのに対し、<strong>JWT（JSON Web Token）</strong>は情報の表し方です。<br />
+OIDCのIDトークンはJWTとして定義されています。<br />
+アクセストークンはJWTの場合もありますが、クライアントには中身を解釈できない形式の場合もあります。
+
+<ArticleImage
+  src={jwtImage}
+  alt="署名付きJWTの構造。Header、Payload、Signatureをピリオドで区切り、Payloadに識別子や有効期限などのクレームを含める。内容のデコードと署名の検証は異なる。"
+  caption="図は署名付きJWTの代表的な形式を示したもの。図版はChatGPTで生成。"
+/>
+
+図のような署名付きJWTは、次の3部分で構成されます。
+
+```text
+Header.Payload.Signature
+```
+
+情報を格納するペイロードには、発行者を表す`iss`、対象を表す`sub`、受け手を表す`aud`、有効期限を表す`exp`などが入ります。<br />
+これらの情報をクレームと呼びます。<br />
+これらの値を信頼するには、署名に加えて、期待する発行者や受け手、有効期限などを確認する必要があります。
+
+署名付きJWTのヘッダーとペイロードは、Base64URLをデコードすると読めます。<br />
+**内容が読めることと、正しい発行者が発行した有効なトークンであることは別**です。<br />
+署名は改ざんの検出に使うため、署名を付けただけでは内容を隠せません。<br />
+なお、JWTには暗号化された形式もあり、すべてが図の3部分構成になるわけではありません。<br />
+[JWTの仕様](https://www.rfc-editor.org/rfc/rfc7519.html#section-3)では、署名などによる保護と、暗号化による表現が説明されています。
+
+検証の担当も分かれます。<br />
+IDトークンは受け手のアプリが、アクセストークンは受け手のAPIが、それぞれの用途に合った方法で検証します。<br />
+SPAがアクセストークンをデコードして「管理者と書いてある」と判断しても、それでAPI側の認可を省略できるわけではありません。
+
+## Authorization Code Grantでコードをトークンに交換する
+
+ここまでのトークンを、実際にどう取得するのでしょうか。<br />
+**Authorization Code Grant**（認可コードグラント）は、最初に認可コードを受け取り、そのコードをトークンに交換する方式です。<br />
+処理の流れを指して、Authorization Code Flowとも呼ばれます。
+
+SPAとEntra IDの場合、次の順序になります。<br />
+認可エンドポイントはログインやアクセス許可の手続きを始める窓口、トークンエンドポイントはコードをトークンに交換する窓口です。
+
+1. SPAがブラウザーをEntra IDの認可エンドポイントへ移動させる。
+2. ユーザーがEntra ID側で認証し、必要に応じてアクセスに同意する。
+3. Entra IDが、登録済みのリダイレクトURIへ認可コードを付けてブラウザーを戻す。
+4. SPAが受け取ったコードをトークンエンドポイントへ送る。
+5. Entra IDが検証し、トークンを返す。
+6. SPAがアクセストークンを使って対象APIを呼ぶ。
+
+この構成では、自前の認証用バックエンドを介さずに、SPAが認証基盤と通信します。<br />
+本人確認とトークン発行を担当するのはEntra IDで、ブラウザーだけで認証を完結させているわけではありません。
+
+Microsoft Graphへアクセスするときは、取得したアクセストークンを`Authorization`ヘッダーへ付けます。<br />
+次の値は説明用で、実際にはAPI向けに取得したトークンを指定します。
+
+```http
+GET /v1.0/me HTTP/1.1
+Host: graph.microsoft.com
+Authorization: Bearer <access_token>
+```
+
+認可コードは、短時間だけ有効な、一度きりの交換用の値です。<br />
+認可コードをAPIに提示しても、アクセストークンの代わりにはなりません。<br />
+OIDCを組み合わせる場合は、このコード交換でIDトークンも受け取ります。<br />
+[認可コードグラントの仕様](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1)に、要求と応答の手順が定義されています。
+
+### 認可リクエストとトークンリクエスト
+
+最初の認可リクエストでは、`response_type=code`を指定します。<br />
+次はOIDCとPKCEを組み合わせる場合の概念例です。<br />
+読みやすく改行しており、値は説明用です。
+
+```text
+GET https://login.example.com/authorize
+  ?response_type=code
+  &client_id=example-spa
+  &redirect_uri=https%3A%2F%2Fapp.example.com%2Fcallback
+  &scope=openid%20profile%20api.read
+  &state=ランダムな照合値
+  &nonce=認証要求にひも付くランダム値
+  &code_challenge=PKCEの照合用の値
+  &code_challenge_method=S256
+```
+
+`client_id`は登録済みアプリの識別子、`redirect_uri`は処理後に戻る場所です。<br />
+`api.read`は説明用のscopeで、実際にはAPIが定義した名前を使います。<br />
+`state`、`nonce`、PKCEの値は、後の節で役割を分けて確認します。
+
+認可コードを受け取った後は、トークンエンドポイントへPOSTします。<br />
+今度は`grant_type=authorization_code`を指定します。
+
+```text
+POST https://login.example.com/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=example-spa
+&code=受け取った認可コード
+&redirect_uri=https%3A%2F%2Fapp.example.com%2Fcallback
+&code_verifier=開始時に作ったPKCEの秘密の値
+```
+
+`response_type`は認可エンドポイントに何を返してほしいかを伝え、`grant_type`はトークン取得に使う方式を伝えています。
+
+### なぜ一度コードを受け取るのか
+
+認可コードフローでは、ブラウザーを戻すURLにアクセストークンを載せず、トークンエンドポイントの応答本文で受け取れます。<br />
+短命で一度しか使えないコードを経由し、さらにPKCEでその交換を保護します。<br />
+認可応答でアクセストークンを直接返すImplicit Grantより、認可コード方式を使うことが現在の[OAuthセキュリティ指針](https://www.rfc-editor.org/rfc/rfc9700.html#section-2.1.2)で推奨されています。
+
+ただし、SPAが交換する構成では、取得後のアクセストークンはブラウザー内にあります。<br />
+認可コードフローを使ったから、トークンがJavaScriptから見えなくなるわけではありません。
+
+## PKCEは認可コードの交換を保護する
+
+SPAのJavaScriptは、利用者のブラウザーへ配信されます。<br />
+アプリの認証に使う秘密の値（`client_secret`）をコードやビルド結果に入れても、利用者から隠せません。<br />
+環境変数から埋め込んでも、配信される値なら同じです。
+
+このようにクライアントの秘密を保持できないアプリは、**Public Client**として扱われます。<br />
+SPAが認可コードを安全に交換するために使うのが、<strong>PKCE（Proof Key for Code Exchange、ピクシー）</strong>です。
+
+<ArticleImage
+  src={pkceImage}
+  alt="PKCEの流れ。アプリは秘密のcode_verifierからcode_challengeを作って先に送り、認可コードの交換時にcode_verifierを提示する。認可サーバーは両者の対応を検証する。"
+  caption="PKCEは認可コードの交換を保護する。図版はChatGPTで生成。"
+/>
+
+PKCEで扱う二つの値には、次の関係があります。
+
+| 値               | 作り方と扱い                                                           |
+| ---------------- | ---------------------------------------------------------------------- |
+| `code_verifier`  | 認可リクエストごとに作る、推測困難なランダム値。コード交換まで保持する |
+| `code_challenge` | `code_verifier`を変換した照合用の値。最初の認可リクエストに含める      |
+
+S256方式では、次の計算をします。
+
+```text
+code_challenge = BASE64URL(SHA256(ASCII(code_verifier)))
+```
+
+認可サーバーは`code_challenge`を認可コードに関連付けます。<br />
+交換時に受け取った`code_verifier`を同じ方法で変換し、一致するか確認します。<br />
+認可コードだけを盗んでも、対応する`code_verifier`を知らなければ交換できません。<br />
+[RFC 7636](https://www.rfc-editor.org/rfc/rfc7636.html#section-4)で、この処理が定義されています。
+
+ここで証明しているのは、その認可処理に対応する秘密の値を持っていることです。<br />
+PKCEがユーザーの本人確認をしたり、アプリ自体の信頼性を保証したりするわけではありません。<br />
+`client_secret`によるクライアント認証とも役割が異なり、サーバーアプリでは両方を併用できます。<br />
+Public Clientの認可コードフローにはPKCEが必須で、秘密を保持できるConfidential Clientにも使用が推奨されています。<br />
+[RFC 9700の認可コードに関する指針](https://www.rfc-editor.org/rfc/rfc9700.html#section-2.1.1)で確認できます。
+
+### code_challengeから元の値を復元できないのか
+
+PKCEを調べていて疑問に思ったのが、「変換方法が公開されているなら、攻撃者もcode_challengeを元に戻せるのではないか」という点です。<br />
+答えを理解するには、エンコードとハッシュ化を分ける必要がありました。
+
+Base64URLは、バイト列をURLでも扱いやすい文字列に変換する方法（エンコード）です。<br />
+デコードすれば、そのバイト列に戻せます。<br />
+しかし、戻せるのはSHA-256のハッシュ値までで、元の`code_verifier`ではありません。
+
+SHA-256によるハッシュ化は、入力から一定の長さの値を計算する処理です。<br />
+Base64URLのように、変換結果を元の入力へ戻すための仕組みではありません。
+
+```text
+code_verifier
+    ↓ SHA-256でハッシュ化
+ハッシュ値
+    ↓ Base64URLでエンコード
+code_challenge
+```
+
+十分にランダムな`code_verifier`を使っていれば、ハッシュ値からそれを現実的に求めることは困難です。<br />
+PKCEの仕様では、暗号学的に安全な乱数を使い、43〜128文字の条件を満たす値を作ります。<br />
+同じ値の使い回しや、日時だけで作った推測可能な値では、この保護が成立しません。
+
+### JavaScriptでPKCEの生成と照合を検証する
+
+仕組みを確かめるために、`code_verifier`の生成と、`code_challenge`との照合を実装しました。<br />
+実際の認可サーバーへのログインやトークン発行は含めず、PKCEの計算と照合に絞った検証です。
+
+暗号学的に安全な乱数は`crypto.getRandomValues()`、SHA-256の計算は`crypto.subtle.digest()`を使います。<br />
+いずれもWeb Crypto APIの機能で、専用のライブラリは追加していません。<br />
+各APIの使い方は、MDNの[getRandomValues()](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues)と[digest()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest)で確認できます。
+
+次のコードを`pkce-demo.mjs`として保存し、`node pkce-demo.mjs`で実行できます。<br />
+今回はNode.js 24.18.0で確認しました。
+
+```javascript
+function toBase64Url(bytes) {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+async function createCodeChallenge(verifier) {
+  const bytes = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return toBase64Url(new Uint8Array(digest));
+}
+
+const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+const verifier = toBase64Url(randomBytes);
+const challenge = await createCodeChallenge(verifier);
+
+// 同じ長さのまま、先頭の1文字だけ変える
+const wrongVerifier = (verifier[0] === "A" ? "B" : "A") + verifier.slice(1);
+
+// RFC 7636 Appendix Bの入力値と期待値で計算も確かめる
+const exampleVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+const expectedChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
+
+const results = {
+  verifierLength: verifier.length,
+  correctVerifier: (await createCodeChallenge(verifier)) === challenge,
+  wrongVerifier: (await createCodeChallenge(wrongVerifier)) === challenge,
+  rfcExample:
+    (await createCodeChallenge(exampleVerifier)) === expectedChallenge,
+};
+
+console.log(JSON.stringify(results, null, 2));
+```
+
+実行結果は、次のとおりです。
+
+```json
+{
+  "verifierLength": 43,
+  "correctVerifier": true,
+  "wrongVerifier": false,
+  "rfcExample": true
+}
+```
+
+32バイトの乱数をBase64URLにすると、今回の`code_verifier`は43文字になりました。<br />
+正しい値から計算したchallengeは一致し、1文字だけ変えた値では一致しませんでした。
+
+ただし、同じ関数で生成と照合をして一致するだけでは、計算方法そのものが正しいか分かりません。<br />
+そこで、[RFC 7636 Appendix Bの入力値と期待値](https://www.rfc-editor.org/rfc/rfc7636.html#appendix-B)とも比較し、同じ結果になることを確認しました。<br />
+コード中の固定値は、この計算確認だけに使うものです。
+
+この検証で確かめたのは、verifierからchallengeを作る計算と、照合時に計算したchallengeが元の値と一致するかの判定です。<br />
+実際の認可サーバーは、受け取った認可コードに保存済みのchallengeを対応付け、コードの期限や再利用、リダイレクトURIなども検証してからトークンを発行します。
+
+### state、nonce、PKCEの違い
+
+ランダム値が複数登場しますが、照合する対象が違います。
+
+| 値                                | 主に対応付けるもの                               |
+| --------------------------------- | ------------------------------------------------ |
+| `state`                           | 開始した認可リクエストと、リダイレクトで戻る応答 |
+| `nonce`                           | OIDCの認証要求と、受け取ったIDトークン           |
+| `code_verifier`と`code_challenge` | 認可リクエストと、認可コードを交換する処理       |
+
+`state`は開始時に保存し、リダイレクトで戻ってきた値と照合します。<br />
+不一致なら、トークン交換へ進みません。<br />
+この照合は、利用者の意図しないリクエストを送らせるCSRF（クロスサイトリクエストフォージェリ）への対策になります。
+
+`nonce`を認証要求に含めた場合は、IDトークン内の値と照合し、その要求に対応するトークンかを確認します。<br />
+別の認証処理で発行されたIDトークンを受け入れてしまうことを防ぐためです。
+
+PKCEやOIDCの`nonce`を正しく実装することで、CSRF対策を満たせる場合もあります。<br />
+いずれもパラメーターを付けるだけでなく、認可処理ごとに値を作り、保持し、受け取った値を検証する必要があります。<br />
+[OIDCのnonceの定義](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest)と[OAuthのCSRF対策](https://www.rfc-editor.org/rfc/rfc9700.html#section-4.7)を参照できます。
+
+## 実際のアプリでMSALが担当すること
+
+PKCEの計算をコードにすると短く書けましたが、アプリのログイン処理には、画面遷移、応答の検証、トークンの保持や更新も必要です。<br />
+Microsoftの認証基盤を使うSPAでは、これらを扱うライブラリとしてMSALを利用できます。
+
+**MSAL**（Microsoft Authentication Library）は、Microsoftの認証基盤からトークンを取得するためのライブラリです。<br />
+SPA向けの`@azure/msal-browser`は、PKCE付き認可コードフローを扱います。<br />
+[MSAL Browserの公式説明](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/about-msal-browser)で、対応するフローを確認できます。
+
+たとえば、`loginPopup()`でポップアップを開いてログインし、API用のトークンはまず`acquireTokenSilent()`で取得します。<br />
+`acquireTokenSilent()`は、保存済みのトークンや更新処理を使い、ユーザー操作なしで取得を試みるメソッドです。<br />
+追加の同意や再ログインなど、ユーザー操作が必要な場合は`acquireTokenPopup()`などで画面を開きます。
+
+この使い方なら、PKCEやトークンキャッシュ、更新処理をアプリ側で一から組み立てずに済みます。<br />
+まずユーザー操作なしでトークン取得を試す流れは、[MSALの基本的な使い方](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/acquire-token)でも説明されています。<br />
+ただし、要求するscopeはアプリ側で設計し、API側では受け取ったリクエストを許可するか判断する必要があります。
+
+認可コードとPKCEの組み合わせは、Entra ID専用の仕組みではありません。<br />
+[CognitoのPKCEの説明](https://docs.aws.amazon.com/cognito/latest/developerguide/using-pkce-in-authorization-code.html)にも、challengeを先に送り、コード交換時にverifierを送る手順が載っています。<br />
+サービス固有の設定と、OAuthやOIDCで定められた共通の手順を分けて読むと、別の認証基盤でも関係を追いやすくなります。
+
+## PKCEを使った後も、アクセストークンを守る必要がある
+
+PKCEの役割を理解すると、次に「取得したアクセストークンを盗まれたら、それだけでAPIを使われるのか」が気になりました。
+
+通常の**Bearer Token**では、有効なトークンを持つ者が、そのトークンで許された範囲のAPIを利用できます。<br />
+認可コードや`code_verifier`をもう一度提示する必要はありません。<br />
+[Bearer Tokenの仕様](https://www.rfc-editor.org/rfc/rfc6750.html#section-1.2)も、所有者による利用を前提に、漏えいから保護する必要性を説明しています。
+
+PKCEが守るのは認可コードの交換であり、発行後のトークンの盗難には別の対策が必要です。<br />
+たとえば、トークンを`sessionStorage`に保存すると、タブ単位で保持できます。<br />
+ただし、同じオリジン（URLのスキーム、ホスト名、ポート番号の組み合わせ）で動くJavaScriptからはアクセスできます。
+
+**XSS**（クロスサイトスクリプティング）によって悪意あるJavaScriptを実行されると、トークンが盗まれたり、APIが不正に操作されたりするおそれがあります。<br />
+`localStorage`から`sessionStorage`へ変えればXSS対策が完了する、とは考えられません。<br />
+[MSALのキャッシュの説明](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/caching#security)も、保存先の選択とXSSへの対策を分けて説明しています。
+
+トークンをログやURLに出さない、必要なscopeだけを要求する、APIでトークンと操作権限を検証する、といった対策も必要です。
+
+## BFFを使うとトークンを持つ場所が変わる
+
+トークンの漏えいを考えると、ブラウザーのJavaScriptにアクセストークンを持たせずに済む構成も知りたくなります。
+
+その選択肢になるのが、<strong>BFF（Backend for Frontend）</strong>です。<br />
+BFFはフロントエンド向けのバックエンドを置く設計で、ここではOAuthの処理やAPIへの代理アクセスを担当させます。
+
+サーバー側でトークンを保持する構成なら、ブラウザーにはログインセッションを識別するCookieを渡します。
+
+```text
+SPAが直接トークンを扱う構成
+ブラウザー ── アクセストークン ──→ API
+
+BFFがサーバー側でトークンを保持する構成
+ブラウザー ── セッションCookie ──→ BFF ── アクセストークン ──→ API
+```
+
+Cookieに`HttpOnly`を付けると、JavaScriptからその値を読み取れなくなります。<br />
+一方、ブラウザーは条件に合うリクエストへCookieを自動的に送信できます。<br />
+冒頭で整理したCookieとSessionの役割が、ここにつながります。
+
+BFFでトークンを取得し、ブラウザーのJavaScriptから遠ざける設計は、[MicrosoftのSPA向け構成例](https://learn.microsoft.com/en-us/azure/architecture/web-apps/guides/security/secure-single-page-application-authorization)でも紹介されています。<br />
+トークンやセッションをどのように保持するかは、実装によって異なります。
+
+ただし、`HttpOnly`でも、XSSによるブラウザー内からの不正操作までは防げません。<br />
+Cookieを自動送信する構成では、意図しない外部サイトからリクエストを送らせるCSRFへの対策も必要です。<br />
+サーバーの運用やセッション管理も増えるため、ブラウザーにトークンを持たせずに済む利点と、運用上の負担を合わせて判断します。
+
+## 学び直して整理できたこと
+
+今回、特に理解が進んだのは、PKCEで保護する範囲です。<br />
+verifierを1文字変えるとchallengeが一致しないことをコードで確認できました。<br />
+認可リクエスト時に作った秘密の値を、コード交換時にも確認する仕組みだと理解できました。
+
+一方、交換後のアクセストークンの扱いや、APIで操作を許可するかの判断は、その先にある別の処理です。<br />
+「ログインできた」「トークンを取得できた」という結果だけで、認可まで完成したとは判断できません。
+
+実装やレビューでは、誰が本人確認を行い、どのトークンを誰に渡し、どこで操作権限を確認しているかを、リクエストの流れに沿って見ていきたいと思います。

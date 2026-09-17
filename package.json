@@ -17,10 +17,11 @@
     "build": "next build",
     "lint": "eslint .",
     "lint:styles": "stylelint \"src/**/*.scss\"",
+    "lint:mdx": "node --test scripts/check-mdx.test.mjs && node scripts/check-mdx.mjs",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm lint && pnpm lint:styles && pnpm typecheck && pnpm format:check",
+    "check": "pnpm lint && pnpm lint:styles && pnpm lint:mdx && pnpm typecheck && pnpm format:check",
     "verify": "pnpm check && pnpm build"
   },
   "dependencies": {
