@@ -179,6 +179,14 @@
     line-height: 2;
   }
 
+  video {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    margin-block-start: tokens.$space-5;
+    border-radius: functions.rem(12);
+  }
+
   p + p {
     margin-block-start: tokens.$space-5;
   }

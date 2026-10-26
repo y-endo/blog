@@ -8,16 +8,23 @@ export async function getPopularPosts(
   posts: readonly Post[],
   hostname: string,
 ): Promise<Post[]> {
+  const publishedPosts = posts
+    .filter((post) => !post.draft)
+    .sort(
+      (left, right) =>
+        left.publishedAt.localeCompare(right.publishedAt) ||
+        left.slug.localeCompare(right.slug, "en"),
+    );
+  const oldestPosts = publishedPosts.slice(0, 5);
   const propertyId = process.env.GA4_PROPERTY_ID;
   const accessToken = process.env.GA4_ACCESS_TOKEN;
 
-  // Local development and CI build without access to Analytics.
-  if (propertyId === undefined && accessToken === undefined) return [];
+  // Local development and CI use older articles without access to Analytics.
+  if (propertyId === undefined && accessToken === undefined) return oldestPosts;
   if (!propertyId || !/^\d+$/.test(propertyId) || !accessToken?.trim()) {
     throw new Error("GA4_PROPERTY_IDとGA4_ACCESS_TOKENを設定してください。");
   }
 
-  const publishedPosts = posts.filter((post) => !post.draft);
   if (publishedPosts.length === 0) return [];
 
   const response = await fetch(
@@ -116,8 +123,11 @@ export async function getPopularPosts(
         left.slug.localeCompare(right.slug, "en"),
     )
     .slice(0, 5);
-  if (popularPosts.length === 0) {
-    throw new Error("公開記事のGA4閲覧データがありません。配信を停止します。");
-  }
-  return popularPosts;
+  return [
+    ...popularPosts,
+    ...oldestPosts.filter(
+      (post) =>
+        !popularPosts.some((popularPost) => popularPost.slug === post.slug),
+    ),
+  ].slice(0, 5);
 }
