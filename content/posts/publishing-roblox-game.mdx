@@ -1,0 +1,336 @@
+---
+title: Robloxでゲームを公開する手順。課金アイテムの登録からテスト、一般公開まで
+description: Roblox Studioで作ったゲームを公開するまでの手順を、Creator Hubの画面付きで紹介します。課金アイテムの登録、アイコンとサムネイルの作成、テストプレイ、公開対象の設定をまとめました。
+publishedAt: 2026-10-29
+category: Projects
+tags: [Roblox, ゲーム制作, 個人開発, 備忘録]
+draft: false
+imageAlt: EGG MONSTERSの公開完了をイメージしたノートPCと、紹介画像が並ぶデスク
+---
+
+import gameIcon from "../../public/images/posts/publishing-roblox-game/game-icon.webp";
+import gameThumbnail from "../../public/images/posts/publishing-roblox-game/game-thumbnail.webp";
+import hubOverview from "../../public/images/posts/publishing-roblox-game/hub-overview.webp";
+import hubAudienceReach from "../../public/images/posts/publishing-roblox-game/hub-audience-reach.webp";
+import hubPassCreate from "../../public/images/posts/publishing-roblox-game/hub-pass-create.webp";
+import hubProductCreate from "../../public/images/posts/publishing-roblox-game/hub-product-create.webp";
+import hubIcon from "../../public/images/posts/publishing-roblox-game/hub-icon.webp";
+import hubThumbnails from "../../public/images/posts/publishing-roblox-game/hub-thumbnails.webp";
+import hubEarlyTesters from "../../public/images/posts/publishing-roblox-game/hub-early-testers.webp";
+import hubContentRating from "../../public/images/posts/publishing-roblox-game/hub-content-rating.webp";
+import hubManageAccess from "../../public/images/posts/publishing-roblox-game/hub-manage-access.webp";
+
+Roblox Studioで作ったゲームを、ほかの人が遊べる状態にするまでの手順をまとめました。<br />
+ゲームの保存、課金設定、紹介画像の準備、テスト、一般公開の順に進めます。
+
+画面の例には、私が制作した「EGG MONSTERS（エッグモンスターズ）」を使っています。<br />
+卵を孵化させてモンスターを仲間にし、森を探索するゲームです。制作の過程は[EGG MONSTERSの紹介記事](/posts/building-roblox-egg-monsters/)にまとめています。
+
+公開条件は**2026年10月26日時点の公式情報**、管理画面は主に10月27日の撮影内容をもとにしています。<br />
+画面名や条件は更新されるため、操作時の表示も確認してください。設定画面の画像はクリックで拡大できます。
+
+## 最初に、保存と一般公開の違いを確認する
+
+Studioの「公開」は、ゲームをRobloxのクラウドへ保存する操作です。<br />
+アップロード後、一般のプレイヤーに遊んでもらうには、公開対象の設定と要件の確認が必要になります。
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-overview.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubOverview}
+    alt="EGG MONSTERSのCreator Hub概要。公開状態と、対象年齢の範囲が別々に表示されている"
+    caption="公開状態だけでなく、誰が遊べる設定になっているかも確認する"
+  />
+</a>
+
+## 1. Studioからゲームを保存する
+
+1. Roblox Studioでゲームを開き、テスト中なら停止する
+2. `File > Publish`（Robloxに公開）を選ぶ
+3. 保存先の個人アカウントまたはコミュニティを選ぶ
+4. ゲーム名・説明・ジャンルなどを入力し、保存する
+5. ブラウザーの管理画面[Creator Hub](https://create.roblox.com/)を開き、`Creations`（制作物）にゲームが追加されたことを確認する
+
+既存のゲームを更新する場合は、上書き先を確認してから保存します。<br />
+Robloxではゲーム内のマップを「プレース（Place）」と呼びます。複数のプレースや開発用のゲームがある場合は、保存先を取り違えないようにします。<br />
+詳しくは[公式のゲーム作成・公開ガイド](https://create.roblox.com/docs/production/publishing/publish-games-and-places)を参照してください。
+
+### 素材の利用権限も確認する
+
+画像・音声・アニメーションなどは、公開先のゲームで使う権限が必要な場合があります。<br />
+公開時に警告が出たら対象の素材とゲームを確認し、必要な権限を付けます。
+
+EGG MONSTERSでも、権限不足でスマホから入ると画像が表示されないことがありました。<br />
+Studioで見えていても、公開後のRobloxアプリで確認することが大切です。設定の考え方は[公式のアセット権限の説明](https://create.roblox.com/docs/projects/assets/privacy)にあります。
+
+## 2. 課金アイテムを登録する
+
+ゲーム内のアイテムや便利機能をRobuxで販売する場合は、まず商品の種類を選びます。<br />
+課金を入れないゲームなら、この章は飛ばして構いません。
+
+| 種類                            | 用途                             | 商品の例             |
+| ------------------------------- | -------------------------------- | -------------------- |
+| パス（Pass）                    | 一度購入すると使い続けられる特典 | 持ち物の容量拡張     |
+| 開発者商品（Developer Product） | 繰り返し購入できるもの           | 消耗品やゲーム内通貨 |
+
+### パスを作成する
+
+1. Creator Hubの`Creations`から対象ゲームを開く
+2. `Monetization > Passes`（収益化 → パス）で`Create pass`を選ぶ
+3. 商品のアイコン、名前、説明、カテゴリを登録する
+4. 作成したパスの販売設定で、価格と販売状態を設定する
+5. 一覧の`… > Copy Asset ID`からパスIDを控える
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-pass-create.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubPassCreate}
+    alt="パスの作成画面。商品画像、名前、説明を入力する欄がある"
+    caption="パスの作成画面。作成後に販売設定へ進む"
+  />
+</a>
+
+商品アイコンはゲーム全体のアイコンとは別に用意します。<br />
+512×512px以内の画像で、丸く表示されても主役が切れない構図にします。対応形式などは[公式のパス作成ガイド](https://create.roblox.com/docs/production/monetization/passes)で確認できます。
+
+### 開発者商品を作成する
+
+1. `Monetization > Developer Products`（収益化 → 開発者製品）を開く
+2. `Create developer product`を選ぶ
+3. 商品のアイコン、名前、説明、カテゴリ、価格、販売状態を設定して保存する
+4. 一覧の`… > Copy Asset ID`から商品IDを控える
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-product-create.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubProductCreate}
+    alt="開発者商品の作成画面。商品画像と名前・説明の入力欄がある"
+    caption="開発者商品の作成画面。下へ進むと価格や販売状態を設定できる"
+  />
+</a>
+
+登録したIDを、ゲーム側の購入ボタンと対応させます。<br />
+パスと開発者商品ではIDも購入処理も異なるため、取り違えないようにします。詳しくは[公式の開発者商品ガイド](https://create.roblox.com/docs/production/monetization/developer-products)を参照してください。
+
+### 購入後の処理をゲームに組み込む
+
+**商品を登録しただけでは、購入者に効果は付きません。**<br />
+パスは購入時とゲームへの参加時に所有を確認し、特典を有効にします。開発者商品は、サーバー側の`MarketplaceService.ProcessReceipt`で商品を付与します。
+
+開発者商品では、同じ購入が再通知されても二重に付与しないこと、効果と購入記録を保存してから処理を完了することが必要です。<br />
+実装の詳細は[公式の購入レシート処理の説明](https://create.roblox.com/docs/reference/engine/classes/MarketplaceService#ProcessReceipt)を確認してください。
+
+地域別価格を使う場合は、ショップの価格表示もRobloxから取得します。画像やコードに金額を固定すると、購入画面の価格と食い違うことがあります。<br />
+[公式の地域別価格ガイド](https://create.roblox.com/docs/production/monetization/regional-pricing)では、表示価格をテストする方法も紹介されています。
+
+### ランダムな報酬を販売する場合
+
+課金でランダムなアイテムを得る仕組みには、結果と確率の表示や、プレイヤーごとの購入制限への対応が必要です。<br />
+有料のゲーム内通貨を使う抽選や、当選確率を上げる商品も含めて、[公式の有料ランダムアイテムの方針](https://create.roblox.com/docs/production/monetization/paid-random-items)を確認します。
+
+EGG MONSTERSでは、卵の孵化を待つ時間を短縮する商品について、分類の判断に迷いました。<br />
+そのため、この商品は販売を停止してRobloxへ問い合わせることにしました。
+
+## 3. アイコンとサムネイルを作る
+
+ゲームを見つけてもらうために、紹介用の画像を用意します。<br />
+アイコンはゲームの目印、サムネイルは遊びの内容を伝える画像です。
+
+| 素材           | 制作サイズの目安  | 構図の考え方                         |
+| -------------- | ----------------- | ------------------------------------ |
+| ゲームアイコン | 512×512pxの正方形 | 主役やモチーフを大きく見せる         |
+| サムネイル     | 1920×1080px、16:9 | 探索や戦闘など、遊びの一場面を見せる |
+
+### 画像生成で作る場合
+
+私はゲーム内のキャラクター画像やスクリーンショットを参照にして、紹介イラストを作りました。<br />
+AIに依頼するときは、**参照画像・伝えたい遊び・画像サイズ**をセットで渡すと、内容を合わせやすくなります。
+
+たとえば、仲間と戦うゲームのサムネイルなら、次のように依頼します。
+
+> 添付したプレイヤーと仲間のモンスターが、森の中で敵に向き合う紹介画像を作ってください。サイズは1920×1080px。キャラクターの形と色は参照画像に合わせ、ゲームに登場しない能力や報酬は追加しないでください。文字は入れないでください。
+
+<ArticleImage
+  src={gameIcon}
+  alt="赤髪のプレイヤー、狼型の仲間、白い卵を大きく描いたゲームアイコン"
+  caption="アイコンの例。ゲームの主役と卵を大きく配置した"
+/>
+
+<ArticleImage
+  src={gameThumbnail}
+  alt="プレイヤーと狼型の仲間が、森の中で大きな石の敵に向き合う紹介イラスト"
+  caption="サムネイルの例。仲間と敵に立ち向かう遊びを一枚で伝える"
+/>
+
+完成した画像は、小さく縮めても主役や遊びが伝わるか確認します。<br />
+イラストだけでなく実際のプレイ画面も用意すると、ゲーム内の見た目を伝えられます。
+
+### Creator Hubへ登録する
+
+1. 対象ゲームの`Configurations > Places`から、最初にプレイヤーが入るプレースを選ぶ
+2. `Icon`でアイコン画像をアップロードし、保存する
+3. `Thumbnails`でサムネイルを追加する
+4. `Home Page`と`Experience Detail Page`の掲載内容を確認する
+5. 審査後、Robloxのゲームページでも表示を確認する
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-icon.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubIcon}
+    alt="アイコンの設定画面。アップロードボタンと、登録済みのゲームアイコンがある"
+    caption="「アイコン」画面から画像を登録する"
+  />
+</a>
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-thumbnails.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubThumbnails}
+    alt="サムネイルの設定画面。詳細ページのタブに登録済み画像が表示されている"
+    caption="サムネイルは、ホームページとゲーム詳細ページの掲載先を確認する"
+  />
+</a>
+
+画像の仕様は、[公式のアイコン作成ガイド](https://create.roblox.com/docs/production/publishing/experience-icons)と[サムネイル作成ガイド](https://create.roblox.com/docs/production/publishing/thumbnails)で確認できます。
+
+## 4. テストプレイで動作を確認する
+
+### Studioで基本動作と複数人プレイを試す
+
+1. `Test`で初めて入るプレイヤーとして遊び、説明・報酬・ショップなどを一通り確認する
+2. `Output`でエラーを確認する
+3. `Server & Clients`で2人以上を起動し、プレイヤー間で状態や報酬が混ざらないか確認する
+4. Device Emulatorやコントローラーのエミュレーションで、画面と操作を確認する
+
+操作方法は[公式のStudioテストガイド](https://create.roblox.com/docs/studio/testing-modes)を参照してください。
+
+保存機能をStudioで試す場合は、別のテスト用ゲームを使います。<br />
+`File > Experience Settings > Security`の`Enable Studio Access to API Services`を有効にすると、実際の保存データへアクセスするためです。詳しくは[公式のデータ保存テストの説明](https://create.roblox.com/docs/cloud-services/data-stores#enable-studio-access)にあります。
+
+### 課金と再参加を確認する
+
+Studioでは開発者商品の[模擬購入](https://devforum.roblox.com/t/mock-purchases-in-studio/26974)を試せます。<br />
+購入画面が出るかに加えて、次の結果も確認します。
+
+- 購入すると、対応する効果だけが付く
+- キャンセルすると、効果が付かない
+- 購入処理が再通知されても、二重に付与されない
+- 保存に失敗した購入は再処理でき、再参加後も特典が残る
+
+Robloxアプリでの通常購入は実際にRobuxを使うため、購入まで試す場合は商品と予算を決めておきます。
+
+### ほかの人と実機で試す
+
+公開前に遊んでもらう場合は、早期テスターを招待できます。<br />
+Creator Hubの`Configurations > Permissions`（環境設定 → 権限）から、「共同制作者」の「早期テスター」を開いて追加します。
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-early-testers.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubEarlyTesters}
+    alt="権限画面の早期テスター設定。テスターを追加するボタンがある"
+    caption="早期テスターを追加して、公開前のゲームを試してもらう"
+  />
+</a>
+
+招待は最大10人で、年齢確認やフレンド関係などの条件があります。<br />
+参加できる相手の条件は[公式の早期テストの案内](https://en.help.roblox.com/hc/en-us/articles/203313890-How-to-Publish-Games-on-Roblox#early-testing)で確認してください。
+
+スマホやコンソールに対応する場合は、それぞれの実機でも確認します。<br />
+特に、ボタンの押しやすさ、文字の大きさ、決定・戻る操作、素材の表示は、PCでの確認だけでは見落としやすいところです。
+
+## 5. 質問票と公開対象を設定する
+
+### ゲーム内容の質問票に回答する
+
+1. Creator Hubで対象ゲームの`Publish settings > Content rating`を開く
+2. `Maturity & Compliance`の質問票を開始する
+3. 暴力・恐怖・有料ランダムアイテムなどについて、実際のゲーム内容で回答する
+4. 回答と分類を確認して提出する
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-content-rating.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubContentRating}
+    alt="質問票の提出結果。EGG MONSTERSは軽度に分類され、恐怖と暴力の項目が表示されている"
+    caption="質問票の提出後に、コンテンツの分類を確認できる"
+  />
+</a>
+
+EGG MONSTERSはモンスターと戦う場面があり、提出時の分類は「軽度」でした。<br />
+想定するプレイヤーの年齢ではなく、ゲームで実際に見たり体験したりする内容をもとに答えます。回答方法は[公式のコンテンツ分類ガイド](https://create.roblox.com/docs/production/promotion/content-maturity)を参照してください。
+
+### 遊べる年齢層と公開要件を確認する
+
+年齢確認済みの16歳以上への公開と、16歳未満を含む対象者への配信では、必要な条件が異なります。<br />
+子どもにも届ける場合は、本人確認・2段階認証、公開手数料やサブスクリプションの条件、ゲームの評価、質問票の完了など、追加の条件を確認します。
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-audience-reach.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubAudienceReach}
+    alt="オーディエンスの管理画面。16歳以上の公開状態と、16歳未満への配信に必要な条件が並ぶ"
+    caption="対象の年齢層に届けるために、残っている条件を確認する"
+  />
+</a>
+
+Creator Hubのアカウント設定にある`Eligibility`と、ゲームの`Audience Reach`に表示される要件を確認します。<br />
+料金や申請条件の詳細は[Roblox Supportの公開資格の案内](https://en.help.roblox.com/hc/en-us/articles/203313890-How-to-Publish-Games-on-Roblox)を参照してください。
+
+### Publicに切り替える
+
+1. `Publish settings > Manage Audience`を開く
+2. `Manage access`で`Public`（公開）を選ぶ
+3. フレンドだけに限定する設定になっていないか確認し、保存する
+4. Robloxのゲームページを開き、作者以外のアカウントで参加できるか試す
+
+<a
+  href="/images/posts/publishing-roblox-game/hub-manage-access.webp"
+  target="_blank"
+  rel="noreferrer"
+>
+  <ArticleImage
+    src={hubManageAccess}
+    alt="アクセスの管理画面。公開の選択肢、友達に制限するチェック欄、保存ボタンがある"
+    caption="「アクセスを管理」で公開範囲を設定する"
+  />
+</a>
+
+Publicになっても、年齢や地域による制限は適用されます。<br />
+遊んでもらいたい年齢層のアカウントで参加できるかまで確認します。詳しくは[公式の公開対象の設定ガイド](https://create.roblox.com/docs/production/publishing/publish-games-and-places#target-audience)にあります。
+
+## 公開後の最終確認
+
+最後にRobloxアプリから入り直し、次の点を確認します。
+
+- ゲーム名・説明・アイコン・サムネイルが反映されている
+- 対応する端末で操作でき、画像や音声も読み込まれる
+- 最初の説明から、基本の遊びを一通り進められる
+- 退出して入り直しても、進行状況や購入内容が残る
+
+公開の設定が完了しても、実際に遊ぶ環境で不具合が見つかることがあります。<br />
+私もスマホやPS5で試しながら修正しました。管理画面での設定と、プレイヤーとして遊ぶ確認をセットで進めると、公開までの抜け漏れを減らせると思います。
